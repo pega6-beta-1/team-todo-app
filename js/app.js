@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadTasks() {
     const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
     tasks.forEach(task => {
-        const li = createTaskElement(task.text, task.description);
+        const li = createTaskElement(task.text, task.description, task.progress || 0);
         if (task.completed) {
             li.classList.add('completed');
         }
@@ -23,7 +23,8 @@ function saveTasks() {
         tasks.push({
             text: task.querySelector('.task-text').textContent,
             description: task.querySelector('.task-description')?.textContent || '',
-            completed: task.classList.contains('completed')
+            completed: task.classList.contains('completed'),
+            progress: parseInt(task.querySelector('.progress-slider').value)
         });
     });
     localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -57,12 +58,15 @@ function addTask(taskText, description = '') {
     saveTasks();
 }
 
-function createTaskElement(taskText, description) {
+function createTaskElement(taskText, description, progress = 0) {
     const li = document.createElement('li');
     li.className = 'task';
     li.draggable = true;
     li.innerHTML = `
         <div class="drag-handle">⋮⋮</div>
+        <div class="task-progress">
+            <span class="progress-value">${progress}%</span>
+        </div>
         <input type="checkbox" class="task-checkbox" onclick="toggleComplete(this)">
         <div class="task-content">
             <span class="task-text">${taskText}</span>
@@ -71,13 +75,20 @@ function createTaskElement(taskText, description) {
         <div class="edit-form">
             <input type="text" class="edit-title" value="${taskText}">
             <input type="text" class="edit-description" value="${description || ''}">
+            <button class="save-btn" onclick="saveEdit(this.closest('.task'))">Save Changes</button>
         </div>
         <div class="task-actions">
             <button onclick="toggleComplete(this)">✓</button>
             <button class="task-menu-btn" onclick="toggleMenu(this)">⋮</button>
             <div class="task-menu">
                 <button onclick="editTask(this)">Edit Task</button>
+                <button onclick="showProgressControl(this)">Set Progress</button>
                 <button onclick="archiveTask(this)">Archive Task</button>
+                <div class="progress-control" style="display: none;">
+                    <input type="range" class="progress-slider" min="0" max="100" value="${progress}" 
+                           oninput="updateProgress(this)">
+                    <button class="progress-save-btn" onclick="saveProgress(this)">Save Progress</button>
+                </div>
             </div>
         </div>
     `;
@@ -113,6 +124,35 @@ function createTaskElement(taskText, description) {
     });
 
     return li;
+}
+
+function showProgressControl(button) {
+    const progressControl = button.parentElement.querySelector('.progress-control');
+    progressControl.style.display = progressControl.style.display === 'none' ? 'block' : 'none';
+    event.stopPropagation();
+}
+
+function updateProgress(slider) {
+    const value = slider.value;
+    const task = slider.closest('.task');
+    // Only update the preview while sliding
+    slider.parentElement.querySelector('.progress-save-btn').style.display = 'block';
+}
+
+function saveProgress(button) {
+    const task = button.closest('.task');
+    const slider = task.querySelector('.progress-slider');
+    const value = slider.value;
+    
+    // Update the visible progress value
+    task.querySelector('.progress-value').textContent = value + '%';
+    
+    // Hide the progress control and save button
+    button.style.display = 'none';
+    button.closest('.progress-control').style.display = 'none';
+    button.closest('.task-menu').classList.remove('show');
+    
+    saveTasks();
 }
 
 let draggedTask = null;
@@ -232,13 +272,8 @@ function editTask(button) {
     const titleInput = task.querySelector('.edit-title');
     titleInput.focus();
     
-    // Add save on enter
-    titleInput.onkeypress = (e) => {
-        if (e.key === 'Enter') saveEdit(task);
-    };
-    
-    // Add save on blur
-    task.querySelector('.edit-description').onblur = () => saveEdit(task);
+    // Remove automatic save on blur
+    task.querySelector('.edit-description').onblur = null;
 }
 
 function saveEdit(task) {
