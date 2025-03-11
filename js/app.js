@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadTasks() {
     const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
     tasks.forEach(task => {
-        const li = createTaskElement(task.text);
+        const li = createTaskElement(task.text, task.description);
         if (task.completed) {
             li.classList.add('completed');
         }
@@ -22,6 +22,7 @@ function saveTasks() {
     document.querySelectorAll('.task').forEach(task => {
         tasks.push({
             text: task.querySelector('.task-text').textContent,
+            description: task.querySelector('.task-description')?.textContent || '',
             completed: task.classList.contains('completed')
         });
     });
@@ -30,7 +31,9 @@ function saveTasks() {
 
 function handleAddTask() {
     const input = document.getElementById('taskInput');
+    const descInput = document.getElementById('descriptionInput');
     const taskText = input.value.trim();
+    const description = descInput.value.trim();
     
     if (!taskText) return;
     
@@ -41,26 +44,30 @@ function handleAddTask() {
         return;
     }
     
-    addTask(taskText);
+    addTask(taskText, description);
     input.value = '';
+    descInput.value = '';
 }
 
-function addTask(taskText) {
+function addTask(taskText, description = '') {
     const taskList = document.getElementById('taskList');
-    const li = createTaskElement(taskText);
+    const li = createTaskElement(taskText, description);
     taskList.appendChild(li);
     updateTaskScaling(); // Add this line
     saveTasks();
 }
 
-function createTaskElement(taskText) {
+function createTaskElement(taskText, description) {
     const li = document.createElement('li');
     li.className = 'task';
     li.draggable = true;
     li.innerHTML = `
         <div class="drag-handle">⋮⋮</div>
         <input type="checkbox" class="task-checkbox" onclick="toggleComplete(this)">
-        <span class="task-text">${taskText}</span>
+        <div class="task-content">
+            <span class="task-text">${taskText}</span>
+            ${description ? `<span class="task-description">${description}</span>` : ''}
+        </div>
         <div class="task-actions">
             <button onclick="toggleComplete(this)">✓</button>
         </div>
@@ -177,11 +184,13 @@ function updateTaskScaling() {
     const totalTasks = tasks.length;
     
     tasks.forEach((task, index) => {
-        const scale = 1.2 - (index * 0.05); // Keep the same scale reduction
-        const fontSize = 16 - (index * 0.3); // Reduced from 0.8 to 0.3 for more subtle reduction
+        // Only scale down until the 10th task
+        const effectiveIndex = Math.min(index, 9);
+        const scale = 1.2 - (effectiveIndex * 0.05);
+        const fontSize = 16 - (effectiveIndex * 0.15);
         
         task.style.transform = `scale(${Math.max(scale, 0.7)})`;
-        task.querySelector('.task-text').style.fontSize = `${Math.max(fontSize, 14)}px`; // Increased minimum from 12px to 14px
-        task.style.marginBottom = `${Math.max(24 - (index * 2), 12)}px`;
+        task.querySelector('.task-text').style.fontSize = `${Math.max(fontSize, 15)}px`;
+        task.style.marginBottom = `${Math.max(24 - (effectiveIndex * 2), 12)}px`;
     });
 }

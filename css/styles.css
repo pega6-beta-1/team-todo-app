@@ -33,6 +33,13 @@ h1 {
     margin-bottom: 20px;
 }
 
+.input-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 input {
     flex: 1;
     padding: 10px;
@@ -57,7 +64,7 @@ button:hover {
 .task {
     display: flex;
     align-items: center;
-    padding: 12px 8px; /* Reduced horizontal padding */
+    padding: 12px 15px; /* Increased padding */
     background: #f8f9fa;
     margin-bottom: 16px;
     border-radius: 6px;
@@ -108,9 +115,28 @@ button:hover {
     margin-left: auto;
 }
 
+.task-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 0 15px; /* Add margin on both sides */
+}
+
 .task-text {
     flex: 1;
+    font-weight: 500; /* Make task name slightly bolder */
     transition: font-size 0.3s ease;
+    font-size: 15px; /* Base size for task text */
+}
+
+.task-description {
+    font-size: 13px; /* Smaller than task text */
+    color: #666;
+    margin-top: 2px;
+    display: block;
+    max-width: 100%;
+    font-weight: normal;
 }
 
 .drag-handle {
