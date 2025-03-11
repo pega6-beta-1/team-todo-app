@@ -11,12 +11,14 @@ body {
 }
 
 .container {
-    max-width: 600px;
+    max-width: 800px; /* Increased from 600px */
     margin: 0 auto;
     background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 40px; /* Increased from 20px */
+    border-radius: 12px; /* Increased from 8px */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px; /* Added to prevent top task from being cut off */
+    margin-bottom: 20px;
 }
 
 h1 {
@@ -55,13 +57,20 @@ button:hover {
 .task {
     display: flex;
     align-items: center;
-    padding: 10px;
+    padding: 12px 8px; /* Reduced horizontal padding */
     background: #f8f9fa;
-    margin-bottom: 8px;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-    transform-origin: top center;
-    will-change: transform, font-size;
+    margin-bottom: 16px;
+    border-radius: 6px;
+    transition: all 0.3s ease, transform 0.3s ease-out;
+    transform-origin: center;
+    will-change: transform, font-size, margin;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.task:hover {
+    z-index: 2; /* Ensure hovered task stays above others */
 }
 
 .task.completed {
@@ -72,16 +81,24 @@ button:hover {
 }
 
 .task.dragging {
-    opacity: 0.5;
+    z-index: 3; /* Ensure dragged task stays on top */
+    opacity: 0.9; /* Make it slightly more visible while dragging */
     background: #e3f2fd;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .task.drag-over {
     border-top: 2px solid #1a73e8;
 }
 
+.task.removing {
+    opacity: 0;
+    transform: scale(0.8);
+    margin-top: -50px;
+}
+
 .task-checkbox {
-    margin-right: 10px;
+    margin-right: 4px; /* Further reduced from 6px */
     width: 18px;
     height: 18px;
     cursor: pointer;
@@ -98,13 +115,14 @@ button:hover {
 
 .drag-handle {
     cursor: move;
-    padding: 0 10px;
+    padding: 0 2px; /* Further reduced from 4px */
     color: #999;
     font-size: 20px;
     user-select: none;
     display: flex;
     align-items: center;
     height: 100%;
+    margin-right: 0; /* Removed margin completely */
 }
 
 .task-checkbox,
@@ -119,5 +137,9 @@ button:hover {
 
 #taskList {
     list-style: none;
-    padding: 20px 0;
+    padding: 30px 40px; /* Increased horizontal padding */
+    margin-top: 20px;
+    /* Add padding for scaled items */
+    margin-left: 20px;
+    margin-right: 20px;
 }

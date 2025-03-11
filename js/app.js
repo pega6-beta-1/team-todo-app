@@ -140,14 +140,29 @@ function handleDrop(e) {
 function toggleComplete(element) {
     const task = element.closest('.task');
     task.classList.toggle('completed');
-    saveTasks();
     
     if (element.type === 'checkbox' && element.checked) {
+        // Add transition class for smooth fade out
+        task.classList.add('removing');
+        // Trigger immediate scale update for other tasks
+        const tasks = document.querySelectorAll('.task:not(.removing)');
+        tasks.forEach((otherTask, index) => {
+            const scale = 1.2 - (index * 0.05);
+            const fontSize = 18 - (index * 0.8);
+            otherTask.style.transform = `scale(${Math.max(scale, 0.7)})`;
+            otherTask.querySelector('.task-text').style.fontSize = 
+                `${Math.max(fontSize, 12)}px`;
+            otherTask.style.marginBottom = 
+                `${Math.max(24 - (index * 2), 12)}px`;
+        });
+        
         setTimeout(() => {
             task.remove();
+            updateTaskScaling();
             saveTasks();
-        }, 500); // Small delay so user can see the completion before deletion
+        }, 300);
     }
+    saveTasks();
 }
 
 // Add event listener for Enter key
@@ -162,10 +177,11 @@ function updateTaskScaling() {
     const totalTasks = tasks.length;
     
     tasks.forEach((task, index) => {
-        const scale = 1 - (index * 0.03); // Decrease by 3% for each position
-        const fontSize = 16 - (index * 0.5); // Decrease font size by 0.5px for each position
+        const scale = 1.2 - (index * 0.05); // Keep the same scale reduction
+        const fontSize = 16 - (index * 0.3); // Reduced from 0.8 to 0.3 for more subtle reduction
         
-        task.style.transform = `scale(${Math.max(scale, 0.7)})`; // Don't go smaller than 70%
-        task.querySelector('.task-text').style.fontSize = `${Math.max(fontSize, 12)}px`; // Don't go smaller than 12px
+        task.style.transform = `scale(${Math.max(scale, 0.7)})`;
+        task.querySelector('.task-text').style.fontSize = `${Math.max(fontSize, 14)}px`; // Increased minimum from 12px to 14px
+        task.style.marginBottom = `${Math.max(24 - (index * 2), 12)}px`;
     });
 }
