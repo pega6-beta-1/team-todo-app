@@ -14,6 +14,7 @@ function loadTasks() {
         }
         document.getElementById('taskList').appendChild(li);
     });
+    updateTaskScaling(); // Add this line
 }
 
 function saveTasks() {
@@ -48,6 +49,7 @@ function addTask(taskText) {
     const taskList = document.getElementById('taskList');
     const li = createTaskElement(taskText);
     taskList.appendChild(li);
+    updateTaskScaling(); // Add this line
     saveTasks();
 }
 
@@ -64,6 +66,20 @@ function createTaskElement(taskText) {
         </div>
     `;
 
+    const dragHandle = li.querySelector('.drag-handle');
+    
+    // Only start drag when using the drag handle
+    li.draggable = false;
+    dragHandle.addEventListener('mousedown', () => {
+        li.draggable = true;
+    });
+    li.addEventListener('mouseup', () => {
+        li.draggable = false;
+    });
+    li.addEventListener('dragend', () => {
+        li.draggable = false;
+    });
+
     // Add drag event listeners
     li.addEventListener('dragstart', handleDragStart);
     li.addEventListener('dragover', handleDragOver);
@@ -77,6 +93,11 @@ function createTaskElement(taskText) {
 let draggedTask = null;
 
 function handleDragStart(e) {
+    // Prevent drag if clicking checkbox or complete button
+    if (e.target.type === 'checkbox' || e.target.tagName === 'BUTTON') {
+        e.preventDefault();
+        return;
+    }
     draggedTask = this;
     this.classList.add('dragging');
     e.dataTransfer.effectAllowed = 'move';
@@ -112,6 +133,7 @@ function handleDrop(e) {
 
     this.classList.remove('drag-over');
     draggedTask.classList.remove('dragging');
+    updateTaskScaling(); // Add this line
     saveTasks();
 }
 
@@ -134,3 +156,16 @@ document.getElementById('taskInput').addEventListener('keypress', function(e) {
         handleAddTask();
     }
 });
+
+function updateTaskScaling() {
+    const tasks = document.querySelectorAll('.task');
+    const totalTasks = tasks.length;
+    
+    tasks.forEach((task, index) => {
+        const scale = 1 - (index * 0.03); // Decrease by 3% for each position
+        const fontSize = 16 - (index * 0.5); // Decrease font size by 0.5px for each position
+        
+        task.style.transform = `scale(${Math.max(scale, 0.7)})`; // Don't go smaller than 70%
+        task.querySelector('.task-text').style.fontSize = `${Math.max(fontSize, 12)}px`; // Don't go smaller than 12px
+    });
+}

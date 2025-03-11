@@ -59,9 +59,9 @@ button:hover {
     background: #f8f9fa;
     margin-bottom: 8px;
     border-radius: 4px;
-    transition: opacity 0.3s ease;
-    cursor: default;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    transform-origin: top center;
+    will-change: transform, font-size;
 }
 
 .task.completed {
@@ -93,6 +93,7 @@ button:hover {
 
 .task-text {
     flex: 1;
+    transition: font-size 0.3s ease;
 }
 
 .drag-handle {
@@ -101,8 +102,22 @@ button:hover {
     color: #999;
     font-size: 20px;
     user-select: none;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.task-checkbox,
+.task-actions button {
+    pointer-events: all;
+}
+
+.task.dragging .task-checkbox,
+.task.dragging .task-actions button {
+    pointer-events: none;
 }
 
 #taskList {
     list-style: none;
+    padding: 20px 0;
 }
