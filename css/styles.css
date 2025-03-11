@@ -169,3 +169,65 @@ button:hover {
     margin-left: 20px;
     margin-right: 20px;
 }
+
+.task-menu-btn {
+    background: none;
+    border: none;
+    color: #666;
+    padding: 4px 8px;
+    cursor: pointer;
+    margin-left: 8px;
+    font-size: 18px;
+}
+
+.task-menu {
+    position: absolute;
+    right: 10px;
+    top: 100%;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    display: none;
+    z-index: 10;
+}
+
+.task-menu.show {
+    display: block;
+}
+
+.task-menu button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.task-menu button:hover {
+    background: #f0f2f5;
+}
+
+.task.editing .task-content {
+    display: none;
+}
+
+.edit-form {
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    margin: 0 15px;
+}
+
+.task.editing .edit-form {
+    display: flex;
+}
+
+.edit-form input {
+    padding: 6px 10px;
+    font-size: 14px;
+}

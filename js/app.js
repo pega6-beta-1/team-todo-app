@@ -68,8 +68,17 @@ function createTaskElement(taskText, description) {
             <span class="task-text">${taskText}</span>
             ${description ? `<span class="task-description">${description}</span>` : ''}
         </div>
+        <div class="edit-form">
+            <input type="text" class="edit-title" value="${taskText}">
+            <input type="text" class="edit-description" value="${description || ''}">
+        </div>
         <div class="task-actions">
             <button onclick="toggleComplete(this)">✓</button>
+            <button class="task-menu-btn" onclick="toggleMenu(this)">⋮</button>
+            <div class="task-menu">
+                <button onclick="editTask(this)">Edit Task</button>
+                <button onclick="archiveTask(this)">Archive Task</button>
+            </div>
         </div>
     `;
 
@@ -93,6 +102,15 @@ function createTaskElement(taskText, description) {
     li.addEventListener('drop', handleDrop);
     li.addEventListener('dragenter', handleDragEnter);
     li.addEventListener('dragleave', handleDragLeave);
+
+    // Close all menus when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.task-menu-btn')) {
+            document.querySelectorAll('.task-menu.show').forEach(menu => {
+                menu.classList.remove('show');
+            });
+        }
+    });
 
     return li;
 }
@@ -193,4 +211,69 @@ function updateTaskScaling() {
         task.querySelector('.task-text').style.fontSize = `${Math.max(fontSize, 15)}px`;
         task.style.marginBottom = `${Math.max(24 - (effectiveIndex * 2), 12)}px`;
     });
+}
+
+function toggleMenu(button) {
+    event.stopPropagation();
+    const menu = button.nextElementSibling;
+    document.querySelectorAll('.task-menu.show').forEach(m => {
+        if (m !== menu) m.classList.remove('show');
+    });
+    menu.classList.toggle('show');
+}
+
+function editTask(button) {
+    const task = button.closest('.task');
+    const menu = button.closest('.task-menu');
+    menu.classList.remove('show');
+    task.classList.add('editing');
+    
+    // Focus on the title input
+    const titleInput = task.querySelector('.edit-title');
+    titleInput.focus();
+    
+    // Add save on enter
+    titleInput.onkeypress = (e) => {
+        if (e.key === 'Enter') saveEdit(task);
+    };
+    
+    // Add save on blur
+    task.querySelector('.edit-description').onblur = () => saveEdit(task);
+}
+
+function saveEdit(task) {
+    const titleInput = task.querySelector('.edit-title');
+    const descInput = task.querySelector('.edit-description');
+    const newTitle = titleInput.value.trim();
+    const newDesc = descInput.value.trim();
+    
+    if (newTitle) {
+        task.querySelector('.task-text').textContent = newTitle;
+        const descEl = task.querySelector('.task-description');
+        if (newDesc) {
+            if (descEl) {
+                descEl.textContent = newDesc;
+            } else {
+                task.querySelector('.task-content').insertAdjacentHTML(
+                    'beforeend',
+                    `<span class="task-description">${newDesc}</span>`
+                );
+            }
+        } else if (descEl) {
+            descEl.remove();
+        }
+        
+        task.classList.remove('editing');
+        saveTasks();
+    }
+}
+
+function archiveTask(button) {
+    const task = button.closest('.task');
+    task.classList.add('removing');
+    setTimeout(() => {
+        task.remove();
+        updateTaskScaling();
+        saveTasks();
+    }, 300);
 }
