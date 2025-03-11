@@ -18,6 +18,7 @@ npm install
 - Mark tasks as complete
 - Delete tasks
 - Clean and responsive design
+- Maximum limit of 20 active tasks at once
 
 ## Usage
 
