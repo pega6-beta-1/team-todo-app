@@ -13,10 +13,10 @@ body {
 .container {
     max-width: 800px; /* Increased from 600px */
     margin: 0 auto;
-    background: white;
-    padding: 40px; /* Increased from 20px */
+    background: #f8f9fa;
+    padding: 30px; /* Increased from 20px */
     border-radius: 12px; /* Increased from 8px */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     margin-top: 20px; /* Added to prevent top task from being cut off */
     margin-bottom: 20px;
 }
@@ -121,6 +121,7 @@ button:hover {
     flex-direction: column;
     align-items: flex-start;
     margin: 0 15px; /* Add margin on both sides */
+    color: #333;
 }
 
 .task-text {
@@ -163,11 +164,79 @@ button:hover {
 
 #taskList {
     list-style: none;
-    padding: 30px 40px; /* Increased horizontal padding */
+    padding: 20px;
     margin-top: 20px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     /* Add padding for scaled items */
     margin-left: 20px;
     margin-right: 20px;
+}
+
+li {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e6e6e6;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transform-origin: top center;
+}
+
+/* Replace the previous nth-child rules with these new ones */
+#taskList li:nth-child(1) {
+    transform: scale(1);
+    margin-bottom: 12px;
+    z-index: 5;
+}
+
+#taskList li:nth-child(2) {
+    transform: scale(0.98);
+    margin-bottom: 10px;
+    z-index: 4;
+}
+
+#taskList li:nth-child(3) {
+    transform: scale(0.96);
+    margin-bottom: 8px;
+    z-index: 3;
+}
+
+#taskList li:nth-child(4) {
+    transform: scale(0.94);
+    margin-bottom: 6px;
+    z-index: 2;
+}
+
+#taskList li:nth-child(n+5) {
+    transform: scale(0.92);
+    margin-bottom: 4px;
+    z-index: 1;
+}
+
+li:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+li:last-child {
+    margin-bottom: 0;
+}
+
+.archived {
+    background: #f5f5f5;
+    cursor: default;
+    border-left: 4px solid #666;
+    border-color: #ddd;
+}
+
+.completed {
+    background: #e8f5e9;
+    border-color: #c8e6c9;
 }
 
 .task-menu-btn {
@@ -182,13 +251,13 @@ button:hover {
 
 .task-menu {
     position: absolute;
-    right: 10px;
+    right: 0;
     top: 100%;
     background: white;
     border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     display: none;
-    z-index: 10;
+    z-index: 1000;
 }
 
 .task-menu.show {
@@ -198,17 +267,16 @@ button:hover {
 .task-menu button {
     display: block;
     width: 100%;
-    text-align: left;
     padding: 8px 16px;
+    text-align: left;
     border: none;
     background: none;
     color: #333;
-    font-size: 14px;
     cursor: pointer;
 }
 
 .task-menu button:hover {
-    background: #f0f2f5;
+    background: #f5f5f5;
 }
 
 .task.editing .task-content {
@@ -244,28 +312,101 @@ button:hover {
     background: #45a049;
 }
 
-.task-progress {
-    display: flex;
-    align-items: center;
-    min-width: 45px;
-    margin-right: 10px;
+.menu-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
 }
 
-.progress-value {
-    font-size: 14px;
+.task-content {
+    flex: 1;
+    margin-right: 16px;
+    color: #333;
+}
+
+.section-toggle {
+    display: block;
+    margin: 0 auto 20px;
+    background: #666;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.section-toggle:hover {
+    background: #555;
+}
+
+.archived {
+    background: #f5f5f5;
+    cursor: default;
+    border-left: 4px solid #666;
+    border-color: #ddd;
+}
+
+.archive-date {
+    display: block;
+    font-size: 12px;
     color: #666;
-    text-align: right;
+    margin-top: 4px;
+    font-style: italic;
 }
 
-.progress-control {
-    padding: 10px 16px;
-    border-top: 1px solid #eee;
+.archived .task-content span {
+    color: #666;
+}
+
+.task-header {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
 }
 
-.progress-slider {
+.restore-btn {
+    background: #4CAF50;
+    margin-right: 8px;
+}
+
+.restore-btn:hover {
+    background: #45a049;
+}
+
+.delete-btn {
+    background: #dc3545;
+}
+
+.delete-btn:hover {
+    background: #c82333;
+}
+
+.progress-text {
+    font-size: 12px;
+    color: #666;
+    margin-left: 8px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+    user-select: none;
+}
+
+.progress-text:hover {
+    background-color: #f0f0f0;
+    color: #1a73e8;
+}
+
+.progress-editor {
+    margin-top: 8px;
+    padding: 8px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.progress-range {
     width: 100%;
     height: 4px;
     -webkit-appearance: none;
@@ -274,37 +415,80 @@ button:hover {
     outline: none;
 }
 
-.progress-slider::-webkit-slider-thumb {
+.progress-range::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
     background: #1a73e8;
     border-radius: 50%;
     cursor: pointer;
+    transition: transform 0.1s;
 }
 
-.progress-slider::-moz-range-thumb {
-    width: 12px;
-    height: 12px;
-    background: #1a73e8;
-    border-radius: 50%;
-    cursor: pointer;
-    border: none;
+.progress-range::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
 }
 
-.progress-save-btn {
-    display: none;
-    width: 100%;
-    padding: 6px 12px;
-    background: #4CAF50;
-    color: white;
-    border: none;
+.checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #1a73e8;
     border-radius: 4px;
-    font-size: 13px;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    margin-top: 4px;
+    color: #fff;
+    background: transparent;
+    transition: all 0.2s ease;
 }
 
-.progress-save-btn:hover {
-    background: #45a049;
+.completed .checkbox {
+    background: #1a73e8;
+    border-color: #1a73e8;
+}
+
+.trash-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.trash-btn:hover {
+    opacity: 1;
+    background: none;
+}
+
+.completed .task-text {
+    text-decoration: line-through;
+    color: #666;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    margin-left: 4px;
+}
+
+.action-btn:hover {
+    opacity: 1;
+    background: none;
+}
+
+.delete-btn {
+    color: #dc3545;
+}
+
+.archive-btn {
+    color: #6c757d;
 }
