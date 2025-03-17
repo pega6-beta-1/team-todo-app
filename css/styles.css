@@ -468,3 +468,27 @@ li:last-child {
     text-decoration: line-through;
     color: #666;
 }
+
+.action-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    margin-left: 4px;
+}
+
+.action-btn:hover {
+    opacity: 1;
+    background: none;
+}
+
+.delete-btn {
+    color: #dc3545;
+}
+
+.archive-btn {
+    color: #6c757d;
+}

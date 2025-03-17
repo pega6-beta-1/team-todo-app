@@ -41,8 +41,16 @@ function archiveTask(id) {
     const taskToArchive = tasks.find(task => task.id === id);
     if (taskToArchive) {
         tasks = tasks.filter(task => task.id !== id);
-        archivedTasks.push({...taskToArchive, archivedDate: new Date()});
+        archivedTasks.push({
+            ...taskToArchive, 
+            archivedDate: new Date(),
+            autoArchived: false
+        });
         renderTasks();
+        
+        // Update the archive count immediately
+        const toggleBtn = document.querySelector('.section-toggle');
+        toggleBtn.textContent = `Show Archived Tasks (${archivedTasks.length})`;
     }
 }
 
@@ -50,11 +58,8 @@ function deleteTask(id) {
     if (showingArchived) {
         archivedTasks = archivedTasks.filter(task => task.id !== id);
     } else {
-        const taskToDelete = tasks.find(task => task.id === id);
-        if (taskToDelete) {
-            tasks = tasks.filter(task => task.id !== id);
-            archivedTasks.push({...taskToDelete, archivedDate: new Date(), autoArchived: true});
-        }
+        // Simply remove the task without archiving it
+        tasks = tasks.filter(task => task.id !== id);
     }
     renderTasks();
 }
