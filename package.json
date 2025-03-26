@@ -1,0 +1,27 @@
+{
+  "name": "team-todo-app",
+  "version": "1.0.0",
+  "description": "A simple and intuitive To-Do List application built with HTML, CSS, and JavaScript.",
+  "main": "app.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pega6-beta-1/team-todo-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pega6-beta-1/team-todo-app/issues"
+  },
+  "homepage": "https://github.com/pega6-beta-1/team-todo-app#readme",
+  "devDependencies": {
+    "@types/node": "^22.13.13",
+    "dotenv": "^16.4.7",
+    "vite": "^6.2.3"
+  }
+}
