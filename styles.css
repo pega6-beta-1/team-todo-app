@@ -52,3 +52,23 @@ li:hover {
     text-decoration: line-through;
     opacity: 0.7;
 }
+
+.nav-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.showing-completed .task-content {
+    opacity: 0.7;
+}
+
+.completed-date {
+    font-size: 0.8em;
+    color: #666;
+    margin-left: 10px;
+}
+
+.in-completed-view {
+    background-color: #666;
+}

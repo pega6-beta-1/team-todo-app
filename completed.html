@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Completed Tasks</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container showing-completed">
+        <h1>Completed Tasks</h1>
+        <button onclick="window.location.href='index.html'" class="section-toggle in-completed-view">
+            ← Back to Tasks
+        </button>
+        <div id="completed-message" style="display: none;" class="no-tasks">
+            <p>No completed tasks yet</p>
+            <button onclick="window.location.href='index.html'" class="back-btn">Return to active tasks</button>
+        </div>
+        <ul id="taskList"></ul>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
