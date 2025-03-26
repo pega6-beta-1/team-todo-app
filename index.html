@@ -16,12 +16,16 @@
         <div class="input-section">
             <div class="input-group">
                 <input type="text" id="taskInput" placeholder="Enter your task...">
-                <input type="text" id="descriptionInput" placeholder="Add a short description (optional)">
+                <div class="description-container">
+                    <input type="text" id="descriptionInput" placeholder="Add a short description (optional)">
+                    <button class="magic-wand-btn" id="generateDescriptionBtn">🪄</button>
+                </div>
             </div>
             <button onclick="addTask()">Add Task</button>
         </div>
         <ul id="taskList"></ul>
     </div>
-    <script src="app.js"></script>
+    <script type="module" src="config.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>

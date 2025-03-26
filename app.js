@@ -1,3 +1,5 @@
+import { OPENAI_API_KEY } from './config.js';
+
 let tasks = [];
 let archivedTasks = [];
 let showingArchived = false;
@@ -7,6 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Add click handler to section toggle button
     document.querySelector('.section-toggle').addEventListener('click', toggleSection);
+    
+    // Add click handler for magic wand button
+    document.getElementById('generateDescriptionBtn').addEventListener('click', generateDescription);
 });
 
 function addTask() {
@@ -198,4 +203,44 @@ function updateProgress(id, value) {
     const progressText = taskElement.querySelector('.progress-text');
     if (progressIndicator) progressIndicator.style.width = `${progressValue}%`;
     if (progressText) progressText.textContent = `${progressValue}%`;
+}
+
+async function generateDescription() {
+    const taskInput = document.getElementById('taskInput');
+    const descriptionInput = document.getElementById('descriptionInput');
+    const magicBtn = document.querySelector('.magic-wand-btn');
+    
+    if (!taskInput.value.trim()) {
+        alert('Please enter a task first!');
+        return;
+    }
+
+    try {
+        magicBtn.classList.add('loading');
+        
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "gpt-4o-mini",
+                messages: [{
+                    role: "user",
+                    content: `Write a brief, one-sentence description for this task: "${taskInput.value}". Keep it under 100 characters.`
+                }],
+                max_tokens: 50,
+                temperature: 0.7
+            })
+        });
+
+        const data = await response.json();
+        descriptionInput.value = data.choices[0].message.content.trim();
+    } catch (error) {
+        console.error('Error generating description:', error);
+        alert('Failed to generate description. Please try again.');
+    } finally {
+        magicBtn.classList.remove('loading');
+    }
 }
