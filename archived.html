@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archived Tasks</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container showing-archived">
+        <h1>Archived Tasks</h1>
+        <button onclick="window.location.href='index.html'" class="section-toggle in-archive-view">
+            ← Back to Tasks
+        </button>
+        <div id="archived-message" style="display: none;" class="no-tasks">
+            <p>No archived tasks yet</p>
+            <button onclick="window.location.href='index.html'" class="back-btn">Return to active tasks</button>
+        </div>
+        <ul id="taskList"></ul>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

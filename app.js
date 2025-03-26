@@ -1,11 +1,37 @@
 let tasks = [];
 let archivedTasks = [];
+let completedTasks = [];
 let showingArchived = false;
+let showingCompleted = false;
 
 document.addEventListener('DOMContentLoaded', () => {
-    renderTasks();
+    const savedTasks = localStorage.getItem('tasks');
+    const savedArchivedTasks = localStorage.getItem('archivedTasks');
+    const savedCompletedTasks = localStorage.getItem('completedTasks');
     
-    // Add click handler to section toggle button
+    tasks = savedTasks ? JSON.parse(savedTasks) : [];
+    archivedTasks = savedArchivedTasks ? JSON.parse(savedArchivedTasks) : [];
+    completedTasks = savedCompletedTasks ? JSON.parse(savedCompletedTasks) : [];
+    
+    showingArchived = window.location.pathname.includes('archived.html');
+    showingCompleted = window.location.pathname.includes('completed.html');
+
+    if (showingArchived) {
+        document.querySelector('h1').textContent = 'Archived Tasks';
+        const inputSection = document.querySelector('.input-section');
+        if (inputSection) inputSection.style.display = 'none';
+    }
+
+    if (showingCompleted) {
+        document.querySelector('h1').textContent = 'Completed Tasks';
+        const inputSection = document.querySelector('.input-section');
+        if (inputSection) inputSection.style.display = 'none';
+    }
+
+    renderTasks();
+    updateArchivedCount();
+    updateCompletedCount();
+    
     document.querySelector('.section-toggle').addEventListener('click', toggleSection);
 });
 
@@ -49,10 +75,18 @@ function toggleMenu(id) {
 }
 
 function toggleTask(id) {
-    tasks = tasks.map(task =>
-        task.id === id ? {...task, completed: !task.completed} : task
-    );
-    renderTasks();
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+        tasks = tasks.filter(t => t.id !== id);
+        completedTasks.push({
+            ...task,
+            completed: true,
+            completedDate: new Date()
+        });
+        saveToLocalStorage();
+        renderTasks();
+        updateCompletedCount();
+    }
 }
 
 function archiveTask(id) {
@@ -64,47 +98,85 @@ function archiveTask(id) {
             archivedDate: new Date(),
             autoArchived: false
         });
-        renderTasks();
         
-        // Update the archive count immediately
+        saveToLocalStorage();
+        renderTasks();
+        updateArchivedCount();
+        
         const toggleBtn = document.querySelector('.section-toggle');
-        toggleBtn.textContent = `Show Archived Tasks (${archivedTasks.length})`;
+        toggleBtn.classList.add('highlight');
+        setTimeout(() => toggleBtn.classList.remove('highlight'), 1000);
     }
+}
+
+function saveToLocalStorage() {
+    localStorage.setItem('archivedTasks', JSON.stringify(archivedTasks));
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+    localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
 }
 
 function deleteTask(id) {
     if (showingArchived) {
         archivedTasks = archivedTasks.filter(task => task.id !== id);
+        saveToLocalStorage();
+        renderTasks();
+    } else if (showingCompleted) {
+        completedTasks = completedTasks.filter(task => task.id !== id);
+        saveToLocalStorage();
+        renderTasks();
     } else {
-        // Simply remove the task without archiving it
         tasks = tasks.filter(task => task.id !== id);
+        saveToLocalStorage();
+        renderTasks();
     }
-    renderTasks();
 }
 
 function toggleSection() {
-    showingArchived = !showingArchived;
-    renderTasks();
+    if (showingArchived) {
+        window.location.href = 'index.html';
+    } else if (showingCompleted) {
+        window.location.href = 'index.html';
+    } else {
+        window.location.href = 'archived.html';
+    }
 }
 
 function renderTasks() {
     const taskList = document.getElementById('taskList');
-    const currentTasks = showingArchived ? archivedTasks : tasks;
+    if (!taskList) return;
+
+    const currentTasks = showingArchived ? archivedTasks : 
+                        showingCompleted ? completedTasks : tasks;
     
-    // Update section title and input visibility
-    document.querySelector('h1').textContent = showingArchived ? 'Archived Tasks' : 'To-Do List';
-    document.querySelector('.input-section').style.display = showingArchived ? 'none' : 'flex';
+    taskList.innerHTML = '';
     
-    // Update toggle button text
-    const toggleBtn = document.querySelector('.section-toggle');
-    toggleBtn.textContent = showingArchived ? 
-        `Show Active Tasks (${tasks.length})` : 
-        `Show Archived Tasks (${archivedTasks.length})`;
-    
-    taskList.innerHTML = currentTasks.map(task => `
-        <li class="${task.completed ? 'completed' : ''} ${showingArchived ? 'archived' : ''}" 
-            data-id="${task.id}"
-            draggable="${!showingArchived}">
+    if (showingArchived && archivedTasks.length === 0) {
+        taskList.innerHTML = `
+            <li class="no-tasks">
+                <p>No archived tasks yet</p>
+                <button onclick="window.location.href='index.html'" class="back-btn">Return to active tasks</button>
+            </li>
+        `;
+        return;
+    }
+
+    if (showingCompleted && completedTasks.length === 0) {
+        taskList.innerHTML = `
+            <li class="no-tasks">
+                <p>No completed tasks yet</p>
+                <button onclick="window.location.href='index.html'" class="back-btn">Return to active tasks</button>
+            </li>
+        `;
+        return;
+    }
+
+    currentTasks.forEach(task => {
+        const li = document.createElement('li');
+        li.className = `${task.completed ? 'completed' : ''} ${showingArchived ? 'archived' : ''}`;
+        li.dataset.id = task.id;
+        li.draggable = !showingArchived && !showingCompleted;
+        
+        li.innerHTML = `
             <div class="checkbox" onclick="toggleTask(${task.id})">
                 ${task.completed ? '✓' : ''}
             </div>
@@ -113,57 +185,75 @@ function renderTasks() {
                     <span class="task-text">${task.text}</span>
                     ${showingArchived ? 
                         `<small class="archive-date">
-                            ${task.autoArchived ? 'Deleted' : 'Archived'}: 
-                            ${new Date(task.archivedDate).toLocaleDateString()}
+                            Archived: ${new Date(task.archivedDate).toLocaleDateString()}
+                        </small>` 
+                        : showingCompleted ? 
+                        `<small class="completed-date">
+                            Completed: ${new Date(task.completedDate).toLocaleDateString()}
                         </small>` 
                         : ''
                     }
                 </div>
-                ${!showingArchived ? `
-                    <div class="progress-bar-container">
-                        <div class="progress-indicator" style="width: ${task.progress || 0}%"></div>
-                        <span class="progress-text" onclick="showProgressEditor(${task.id})">${task.progress || 0}%</span>
-                    </div>
-                    <div class="progress-editor" style="display: none;">
-                        <input type="range" 
-                            class="progress-range" 
-                            value="${task.progress || 0}" 
-                            min="0" 
-                            max="100"
-                            oninput="updateProgress(${task.id}, this.value)"
-                            onmouseup="this.parentElement.style.display='none'">
-                    </div>
-                ` : ''}
             </div>
             <div class="task-actions">
                 ${showingArchived ? 
-                    `<button class="restore-btn" onclick="restoreTask(${task.id})">Restore</button>
-                     <button class="delete-btn" onclick="deleteTask(${task.id})">Delete Permanently</button>` 
+                    `<button class="action-btn restore-btn" title="Restore Task" onclick="restoreTask(${task.id})">↩️</button>
+                     <button class="action-btn delete-btn" title="Delete Permanently" onclick="deleteTask(${task.id})">🗑️</button>` 
+                    : showingCompleted ? 
+                    `<button class="action-btn restore-btn" title="Restore Task" onclick="restoreCompletedTask(${task.id})">↩️</button>
+                     <button class="action-btn delete-btn" title="Delete Permanently" onclick="deleteTask(${task.id})">🗑️</button>` 
                     : `
-                    <button class="trash-btn" onclick="archiveTask(${task.id})">🗑️</button>
+                    <button class="action-btn archive-btn" title="Archive Task" onclick="archiveTask(${task.id})">📥</button>
+                    <button class="action-btn delete-btn" title="Delete Task" onclick="deleteTask(${task.id})">🗑️</button>
                 `}
             </div>
-        </li>
-    `).join('');
-
-    // Add drag and drop event listeners
-    const taskItems = taskList.querySelectorAll('li');
-    taskItems.forEach(item => {
-        item.addEventListener('dragstart', handleDragStart);
-        item.addEventListener('dragend', handleDragEnd);
-        item.addEventListener('dragover', handleDragOver);
-        item.addEventListener('drop', handleDrop);
+        `;
+        
+        taskList.appendChild(li);
     });
+
+    if (!showingArchived && !showingCompleted) {
+        const taskItems = taskList.querySelectorAll('li');
+        taskItems.forEach(item => {
+            item.addEventListener('dragstart', handleDragStart);
+            item.addEventListener('dragend', handleDragEnd);
+            item.addEventListener('dragover', handleDragOver);
+            item.addEventListener('drop', handleDrop);
+        });
+    }
 }
 
-// Add new restore function
 function restoreTask(id) {
     const taskToRestore = archivedTasks.find(task => task.id === id);
     if (taskToRestore) {
         archivedTasks = archivedTasks.filter(task => task.id !== id);
         const { archivedDate, autoArchived, ...restoredTask } = taskToRestore;
         tasks.push(restoredTask);
+        
+        saveToLocalStorage();
         renderTasks();
+        
+        if (showingArchived && archivedTasks.length === 0) {
+            window.location.href = 'index.html';
+        }
+    }
+}
+
+function restoreCompletedTask(id) {
+    const taskToRestore = completedTasks.find(task => task.id === id);
+    if (taskToRestore) {
+        completedTasks = completedTasks.filter(task => task.id !== id);
+        const { completedDate, ...restoredTask } = taskToRestore;
+        restoredTask.completed = false;
+        tasks.push(restoredTask);
+        
+        saveToLocalStorage();
+        renderTasks();
+        updateCompletedCount();
+        
+        if (showingCompleted && completedTasks.length === 0) {
+            window.location.href = 'index.html';
+        }
     }
 }
 
@@ -190,7 +280,6 @@ function handleDrop(e) {
     const draggedIndex = tasks.findIndex(task => task.id === draggedId);
     const dropIndex = tasks.findIndex(task => task.id === dropId);
     
-    // Reorder tasks array
     const [draggedTask] = tasks.splice(draggedIndex, 1);
     tasks.splice(dropIndex, 0, draggedTask);
     
@@ -211,9 +300,22 @@ function updateProgress(id, value) {
         task.id === id ? {...task, progress: progressValue} : task
     );
     
-    // Update UI without re-render
     const progressIndicator = taskElement.querySelector('.progress-indicator');
     const progressText = taskElement.querySelector('.progress-text');
     if (progressIndicator) progressIndicator.style.width = `${progressValue}%`;
     if (progressText) progressText.textContent = `${progressValue}%`;
+}
+
+function updateArchivedCount() {
+    const archivedCount = document.getElementById('archivedCount');
+    if (archivedCount) {
+        archivedCount.textContent = archivedTasks.length;
+    }
+}
+
+function updateCompletedCount() {
+    const completedCount = document.getElementById('completedCount');
+    if (completedCount) {
+        completedCount.textContent = completedTasks.length;
+    }
 }
