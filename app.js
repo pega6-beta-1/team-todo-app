@@ -57,17 +57,36 @@ function toggleMenu(id) {
 }
 
 function toggleTask(id) {
-    const task = tasks.find(t => t.id === id);
-    if (task) {
-        tasks = tasks.filter(t => t.id !== id);
-        completedTasks.push({
-            ...task,
-            completed: true,
-            completedDate: new Date()
-        });
-        saveToLocalStorage();
-        renderTasks();
-        updateCompletedCount();
+    if (showingCompleted) {
+        // If in completed view, restore task when unchecked
+        const taskToRestore = completedTasks.find(task => task.id === id);
+        if (taskToRestore) {
+            completedTasks = completedTasks.filter(task => task.id !== id);
+            const { completedDate, ...restoredTask } = taskToRestore;
+            restoredTask.completed = false;
+            tasks.push(restoredTask);
+            saveToLocalStorage();
+            renderTasks();
+            updateCompletedCount();
+            
+            if (completedTasks.length === 0) {
+                window.location.href = 'index.html';
+            }
+        }
+    } else {
+        // If in main view, mark task as completed
+        const task = tasks.find(t => t.id === id);
+        if (task) {
+            tasks = tasks.filter(t => t.id !== id);
+            completedTasks.push({
+                ...task,
+                completed: true,
+                completedDate: new Date()
+            });
+            saveToLocalStorage();
+            renderTasks();
+            updateCompletedCount();
+        }
     }
 }
 
@@ -182,8 +201,7 @@ function renderTasks() {
                     `<button class="action-btn restore-btn" title="Restore Task" onclick="restoreTask(${task.id})">↩️</button>
                      <button class="action-btn delete-btn" title="Delete Permanently" onclick="deleteTask(${task.id})">🗑️</button>` 
                     : showingCompleted ? 
-                    `<button class="action-btn restore-btn" title="Restore Task" onclick="restoreCompletedTask(${task.id})">↩️</button>
-                     <button class="action-btn delete-btn" title="Delete Permanently" onclick="deleteTask(${task.id})">🗑️</button>` 
+                    `<button class="action-btn delete-btn" title="Delete Permanently" onclick="deleteTask(${task.id})">🗑️</button>` 
                     : `
                     <button class="action-btn archive-btn" title="Archive Task" onclick="archiveTask(${task.id})">📥</button>
                     <button class="action-btn delete-btn" title="Delete Task" onclick="deleteTask(${task.id})">🗑️</button>
@@ -216,24 +234,6 @@ function restoreTask(id) {
         renderTasks();
         
         if (showingArchived && archivedTasks.length === 0) {
-            window.location.href = 'index.html';
-        }
-    }
-}
-
-function restoreCompletedTask(id) {
-    const taskToRestore = completedTasks.find(task => task.id === id);
-    if (taskToRestore) {
-        completedTasks = completedTasks.filter(task => task.id !== id);
-        const { completedDate, ...restoredTask } = taskToRestore;
-        restoredTask.completed = false;
-        tasks.push(restoredTask);
-        
-        saveToLocalStorage();
-        renderTasks();
-        updateCompletedCount();
-        
-        if (showingCompleted && completedTasks.length === 0) {
             window.location.href = 'index.html';
         }
     }
