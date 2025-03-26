@@ -5,13 +5,13 @@ let archivedTasks = [];
 let showingArchived = false;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize tasks
     renderTasks();
     
-    // Add click handler to section toggle button
+    // Add event listeners
     document.querySelector('.section-toggle').addEventListener('click', toggleSection);
-    
-    // Add click handler for magic wand button
     document.getElementById('generateDescriptionBtn').addEventListener('click', generateDescription);
+    document.getElementById('addTaskBtn').addEventListener('click', addTask);
 });
 
 function addTask() {

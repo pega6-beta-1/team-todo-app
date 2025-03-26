@@ -9,10 +9,9 @@
 <body>
     <div class="container">
         <h1>To-Do List</h1>
-        <button onclick="toggleSection()" class="section-toggle">
+        <button class="section-toggle">
             Show Archived Tasks (0)
         </button>
-        <!-- Removed progress-container div -->
         <div class="input-section">
             <div class="input-group">
                 <input type="text" id="taskInput" placeholder="Enter your task...">
@@ -21,7 +20,7 @@
                     <button class="magic-wand-btn" id="generateDescriptionBtn">🪄</button>
                 </div>
             </div>
-            <button onclick="addTask()">Add Task</button>
+            <button id="addTaskBtn">Add Task</button>
         </div>
         <ul id="taskList"></ul>
     </div>
