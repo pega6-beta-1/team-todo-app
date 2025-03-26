@@ -10,17 +10,35 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function addTask() {
-    const input = document.getElementById('taskInput');
-    const task = input.value.trim();
-    
-    if (task) {
-        tasks.push({
-            id: Date.now(),
-            text: task,
-            completed: false
-        });
-        input.value = '';
-        renderTasks();
+    const taskInput = document.getElementById('taskInput');
+    const descriptionInput = document.getElementById('descriptionInput');
+    const taskList = document.getElementById('taskList');
+
+    const taskName = taskInput.value.trim();
+    const description = descriptionInput.value.trim();
+
+    if (taskName === '') {
+        alert('Task name cannot be empty.');
+        return;
+    }
+
+    const li = document.createElement('li');
+    li.innerHTML = `
+        ${taskName} ${description ? `- ${description}` : ''}
+        <button class="delete-btn" onclick="confirmDeleteTask(this)">🗑️</button>
+    `;
+    taskList.appendChild(li);
+
+    // Clear inputs
+    taskInput.value = '';
+    descriptionInput.value = '';
+}
+
+function confirmDeleteTask(button) {
+    const isConfirmed = confirm('Are you sure you want to delete this task?');
+    if (isConfirmed) {
+        const taskItem = button.parentElement;
+        taskItem.remove();
     }
 }
 
