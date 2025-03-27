@@ -24,7 +24,9 @@ function addTask() {
 
     const li = document.createElement('li');
     li.innerHTML = `
-        ${taskName} ${description ? `- ${description}` : ''}
+        <span class="task-text">${taskName}</span>
+        ${description ? `<span class="task-desc"> - ${description}</span>` : ''}
+        <button class="edit-btn" onclick="editTask(this)">✏️</button>
         <button class="delete-btn" onclick="confirmDeleteTask(this)">🗑️</button>
     `;
     taskList.appendChild(li);
@@ -34,6 +36,7 @@ function addTask() {
     descriptionInput.value = '';
 }
 
+// Function to confirm and delete a task
 function confirmDeleteTask(button) {
     const isConfirmed = confirm('Are you sure you want to delete this task?');
     if (isConfirmed) {
@@ -42,6 +45,17 @@ function confirmDeleteTask(button) {
     }
 }
 
+// Function to edit a task
+function editTask(button) {
+    const taskItem = button.parentElement;
+    const taskText = taskItem.querySelector('.task-text');
+
+    // Store the original values in case the user cancels
+    const originalTaskName = taskText.textContent;
+    const originalTaskDesc = taskDesc ? taskDesc.textContent.replace(' - ', '') : '';
+
+    // Replace task text and description with input fields
+    const taskNameInput = document.createElement('input');
 function toggleMenu(id) {
     const taskElement = document.querySelector(`li[data-id="${id}"]`);
     const menu = taskElement.querySelector('.task-menu');
@@ -87,6 +101,38 @@ function toggleSection() {
     renderTasks();
 }
 
+// Function to handle task click and show description in a separate box
+function showTaskDescription(taskItem) {
+    const taskDesc = taskItem.querySelector('.task-desc');
+    const descriptionText = taskDesc ? taskDesc.textContent.replace(' - ', '') : 'No description available';
+
+        descriptionBox.id = 'descriptionBox';
+        descriptionBox.style.position = 'absolute';
+        descriptionBox.style.backgroundColor = 'white';
+        descriptionBox.style.border = '1px solid #ccc';
+        descriptionBox.style.padding = '10px';
+        descriptionBox.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+        descriptionBox.style.zIndex = '1000';
+        descriptionBox.style.width = '300px';
+        descriptionBox.style.height = 'auto';
+        descriptionBox.style.overflowY = 'auto';
+        document.body.appendChild(descriptionBox);
+    }
+
+    // Set the description text
+    descriptionBox.textContent = descriptionText;
+
+    // Position the box to the right of the task list
+    const taskList = document.getElementById('taskList');
+    const rect = taskList.getBoundingClientRect();
+    descriptionBox.style.top = `${rect.top + window.scrollY}px`;
+    descriptionBox.style.left = `${rect.right + 20 + window.scrollX}px`;
+
+    // Ensure the box is visible
+    descriptionBox.style.display = 'block';
+}
+
+// Modify the renderTasks function to add click event listeners
 function renderTasks() {
     const taskList = document.getElementById('taskList');
     const currentTasks = showingArchived ? archivedTasks : tasks;
@@ -104,7 +150,8 @@ function renderTasks() {
     taskList.innerHTML = currentTasks.map(task => `
         <li class="${task.completed ? 'completed' : ''} ${showingArchived ? 'archived' : ''}" 
             data-id="${task.id}"
-            draggable="${!showingArchived}">
+            draggable="${!showingArchived}"
+            onclick="showTaskDescription(this)">
             <div class="checkbox" onclick="toggleTask(${task.id})">
                 ${task.completed ? '✓' : ''}
             </div>
