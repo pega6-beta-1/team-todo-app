@@ -183,7 +183,7 @@ function renderTasks() {
             </div>
             <div class="task-content">
                 <div class="task-header">
-                    <span class="task-text">${task.text}</span>
+                    <span class="task-text" title="${task.description || ''}">${task.text}</span>
                     ${showingArchived ? 
                         `<small class="archive-date">
                             Archived: ${new Date(task.archivedDate).toLocaleDateString()}
@@ -203,6 +203,7 @@ function renderTasks() {
                     : showingCompleted ? 
                     `<button class="action-btn delete-btn" title="Delete Permanently" onclick="deleteTask(${task.id})">🗑️</button>` 
                     : `
+                    <button class="action-btn edit-btn" title="Edit Task" onclick="editTask(${task.id})">✏️</button>
                     <button class="action-btn archive-btn" title="Archive Task" onclick="archiveTask(${task.id})">📥</button>
                     <button class="action-btn delete-btn" title="Delete Task" onclick="deleteTask(${task.id})">🗑️</button>
                 `}
@@ -299,5 +300,19 @@ function updateCompletedCount() {
     const completedCount = document.getElementById('completedCount');
     if (completedCount) {
         completedCount.textContent = completedTasks.length;
+    }
+}
+
+function editTask(id) {
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+        const newName = prompt("Edit Task Name:", task.text);
+        const newDescription = prompt("Edit Task Description:", task.description || "");
+        if (newName !== null && newName.trim() !== "") {
+            task.text = newName.trim();
+            task.description = newDescription ? newDescription.trim() : "";
+            saveToLocalStorage();
+            renderTasks();
+        }
     }
 }
