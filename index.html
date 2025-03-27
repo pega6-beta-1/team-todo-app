@@ -13,6 +13,12 @@
             Show Archived Tasks (0)
         </button>
         <!-- Removed progress-container div -->
+        <div class="list-controls">
+            <select id="listSelector" onchange="switchList()">
+                <!-- Options will be dynamically populated -->
+            </select>
+            <button onclick="createNewList()">Create New List</button>
+        </div>
         <div class="input-section">
             <div class="input-group">
                 <input type="text" id="taskInput" placeholder="Enter your task...">
@@ -22,8 +28,5 @@
         <ul id="taskList"></ul>
     </div>
     <script src="app.js"></script>
-
-
-    
 </body>
 </html>

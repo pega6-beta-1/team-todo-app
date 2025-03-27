@@ -185,42 +185,33 @@ li {
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     transform-origin: top center;
+    cursor: move; /* Show move cursor on tasks */
 }
 
-/* Replace the previous nth-child rules with these new ones */
-#taskList li:nth-child(1) {
-    transform: scale(1);
-    margin-bottom: 12px;
-    z-index: 5;
+li.dragging {
+    opacity: 0.5;
+    background: #f0f0f0;
+    transform: scale(1.02);
 }
 
-#taskList li:nth-child(2) {
-    transform: scale(0.98);
-    margin-bottom: 10px;
-    z-index: 4;
+li.drag-over {
+    border-top: 2px solid #1a73e8;
 }
 
-#taskList li:nth-child(3) {
-    transform: scale(0.96);
-    margin-bottom: 8px;
-    z-index: 3;
-}
-
-#taskList li:nth-child(4) {
-    transform: scale(0.94);
-    margin-bottom: 6px;
-    z-index: 2;
-}
-
+/* Remove the existing scale transforms for better drag and drop */
+#taskList li:nth-child(1),
+#taskList li:nth-child(2),
+#taskList li:nth-child(3),
+#taskList li:nth-child(4),
 #taskList li:nth-child(n+5) {
-    transform: scale(0.92);
-    margin-bottom: 4px;
-    z-index: 1;
+    transform: none;
+    margin-bottom: 8px;
 }
 
+/* Update hover effect */
 li:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 li:last-child {
@@ -492,6 +483,30 @@ li:last-child {
 
 .archive-btn {
     color: #6c757d;
+}
+
+.list-controls {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#listSelector {
+    margin-right: 10px;
+    padding: 5px;
+}
+
+.list-controls button {
+    padding: 5px 10px;
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.list-controls button:hover {
+    background-color: #155ab6;
 }
 
 
