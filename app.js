@@ -36,16 +36,21 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function addTask() {
-    const input = document.getElementById('taskInput');
-    const task = input.value.trim();
+    const titleInput = document.getElementById('taskInput');
+    const descriptionInput = document.getElementById('taskDescription');
+    const title = titleInput.value.trim();
+    const description = descriptionInput.value.trim();
     
-    if (task) {
+    if (title) {
         tasks.push({
             id: Date.now(),
-            text: task,
+            text: title,
+            description: description,
             completed: false
         });
-        input.value = '';
+        titleInput.value = '';
+        descriptionInput.value = '';
+        saveToLocalStorage();
         renderTasks();
     }
 }
@@ -195,6 +200,7 @@ function renderTasks() {
                         : ''
                     }
                 </div>
+                ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
             </div>
             <div class="task-actions">
                 ${showingArchived ? 
@@ -305,14 +311,66 @@ function updateCompletedCount() {
 
 function editTask(id) {
     const task = tasks.find(t => t.id === id);
+    if (!task) return;
+
+    const taskElement = document.querySelector(`li[data-id="${id}"]`);
+    const taskContent = taskElement.querySelector('.task-content');
+    const taskHeader = taskElement.querySelector('.task-header');
+    const taskActions = taskElement.querySelector('.task-actions');
+
+    // Create edit form
+    const editForm = document.createElement('div');
+    editForm.className = 'edit-form';
+    editForm.innerHTML = `
+        <input type="text" class="edit-title" value="${task.text}" placeholder="Task title">
+        <input type="text" class="edit-description" value="${task.description || ''}" placeholder="Task description (optional)">
+        <div class="edit-actions">
+            <button class="save-btn" onclick="saveEdit(${id})">Save</button>
+            <button class="cancel-btn" onclick="cancelEdit(${id})">Cancel</button>
+        </div>
+    `;
+
+    // Hide original content and show edit form
+    taskContent.style.display = 'none';
+    taskActions.style.display = 'none';
+    taskElement.appendChild(editForm);
+    taskElement.classList.add('editing');
+
+    // Focus on title input
+    const titleInput = editForm.querySelector('.edit-title');
+    titleInput.focus();
+}
+
+function saveEdit(id) {
+    const taskElement = document.querySelector(`li[data-id="${id}"]`);
+    const editForm = taskElement.querySelector('.edit-form');
+    const titleInput = editForm.querySelector('.edit-title');
+    const descriptionInput = editForm.querySelector('.edit-description');
+
+    const task = tasks.find(t => t.id === id);
     if (task) {
-        const newName = prompt("Edit Task Name:", task.text);
-        const newDescription = prompt("Edit Task Description:", task.description || "");
-        if (newName !== null && newName.trim() !== "") {
-            task.text = newName.trim();
-            task.description = newDescription ? newDescription.trim() : "";
-            saveToLocalStorage();
-            renderTasks();
-        }
+        task.text = titleInput.value.trim();
+        task.description = descriptionInput.value.trim();
+        saveToLocalStorage();
+        renderTasks();
     }
+
+    exitEditMode(id);
+}
+
+function cancelEdit(id) {
+    exitEditMode(id);
+}
+
+function exitEditMode(id) {
+    const taskElement = document.querySelector(`li[data-id="${id}"]`);
+    const editForm = taskElement.querySelector('.edit-form');
+    const taskContent = taskElement.querySelector('.task-content');
+    const taskActions = taskElement.querySelector('.task-actions');
+
+    // Remove edit form and show original content
+    editForm.remove();
+    taskContent.style.display = 'flex';
+    taskActions.style.display = 'flex';
+    taskElement.classList.remove('editing');
 }
