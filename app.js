@@ -52,6 +52,12 @@ function addTask() {
         descriptionInput.value = '';
         saveToLocalStorage();
         renderTasks();
+
+function confirmDeleteTask(button) {
+    const isConfirmed = confirm('Are you sure you want to delete this task?');
+    if (isConfirmed) {
+        const taskItem = button.parentElement;
+        taskItem.remove();
     }
 }
 
