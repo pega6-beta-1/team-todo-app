@@ -73,6 +73,80 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTasks();
     });
 
+    document.getElementById('aiGeneratorButton').addEventListener('click', () => {
+        document.getElementById('aiGeneratorDialog').showModal();
+    });
+});
+
+// Attach generateTasks to the global window object
+window.generateTasks = async function generateTasks() {
+    const description = document.getElementById('aiActivityDescription').value.trim();
+    if (!description) {
+        alert('Please enter a description for the activity.');
+        return;
+    }
+
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    if (!apiKey) {
+        alert('API key for ChatGPT is missing.');
+        return;
+    }
+
+    try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: 'gpt-4o-mini',
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are a helpful assistant that breaks down activities into task lists.'
+                    },
+                    {
+                        role: 'user',
+                        content: `Break down the following activity into a list of tasks and suggest a name for the task list:\n\n${description}`
+                    }
+                ],
+                max_tokens: 200
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            const result = data.choices[0].message.content.trim();
+            const [listName, ...taskDescriptions] = result.split('\n').filter(line => line.trim());
+            const newTaskList = {
+                id: Date.now(),
+                name: listName,
+                tasks: taskDescriptions.map((task, index) => ({
+                    id: Date.now() + index,
+                    text: task,
+                    description: '',
+                    completed: false
+                }))
+            };
+
+            taskLists.push(newTaskList);
+            saveTaskLists();
+            updateTaskListSelector();
+
+            document.getElementById('aiGeneratorDialog').close();
+            alert(`Task list "${listName}" has been created.`);
+        } else {
+            console.error('Error from OpenAI API:', data);
+            alert(`Failed to generate tasks: ${data.error.message}`);
+        }
+    } catch (error) {
+        console.error('Error generating tasks:', error);
+        alert('Failed to generate tasks. Please try again.');
+    }
+};
+
     document.getElementById('deleteCategoryBtn').addEventListener('click', deleteCurrentCategory);
 });
 

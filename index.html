@@ -8,6 +8,7 @@
 </head>
 <body>
     <div class="main-container">
+        <button id="aiGeneratorButton" class="ai-generator-btn">AI Generator</button>
         <div class="todo-list">
             <div class="container">
                 <div class="task-list-controls">
@@ -47,6 +48,27 @@
             </dialog>
         </div>
     </div>
-    <script src="app.js"></script>
+    <dialog id="newTaskListDialog" class="task-list-dialog">
+        <form method="dialog">
+            <h3>Create New Task List</h3>
+            <input type="text" id="taskListName" placeholder="Enter task list name">
+            <div class="dialog-buttons">
+                <button type="button" onclick="this.closest('dialog').close()">Cancel</button>
+                <button type="submit" onclick="createNewTaskList(event)">Create</button>
+            </div>
+        </form>
+    </dialog>
+    <dialog id="aiGeneratorDialog" class="ai-generator-dialog">
+        <form method="dialog">
+            <h3>AI Task Generator</h3>
+            <p>Describe the activity you want to generate tasks for:</p>
+            <textarea id="aiActivityDescription" placeholder="Enter activity description" rows="4"></textarea>
+            <div class="dialog-buttons">
+                <button type="button" onclick="this.closest('dialog').close()">Cancel</button>
+                <button type="button" onclick="generateTasks()">Submit</button>
+            </div>
+        </form>
+    </dialog>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
