@@ -7,14 +7,14 @@ let taskLists = [];
 let currentTaskListId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    const savedTasks = localStorage.getItem('tasks');
     const savedArchivedTasks = localStorage.getItem('archivedTasks');
     const savedCompletedTasks = localStorage.getItem('completedTasks');
+    const savedTaskLists = localStorage.getItem('taskLists');
     
-    tasks = savedTasks ? JSON.parse(savedTasks) : [];
     archivedTasks = savedArchivedTasks ? JSON.parse(savedArchivedTasks) : [];
     completedTasks = savedCompletedTasks ? JSON.parse(savedCompletedTasks) : [];
-    
+    taskLists = savedTaskLists ? JSON.parse(savedTaskLists) : [];
+
     showingArchived = window.location.pathname.includes('archived.html');
     showingCompleted = window.location.pathname.includes('completed.html');
 
@@ -30,60 +30,50 @@ document.addEventListener('DOMContentLoaded', () => {
         if (inputSection) inputSection.style.display = 'none';
     }
 
+    // Load tasks for the current view
+    if (!showingArchived && !showingCompleted) {
+        tasks = getAllTasks(); // Aggregate tasks for "All Tasks"
+    }
+
     renderTasks();
     updateArchivedCount();
     updateCompletedCount();
     
     document.querySelector('.section-toggle').addEventListener('click', toggleSection);
 
-    // Load task lists
-    const savedTaskLists = localStorage.getItem('taskLists');
-    taskLists = savedTaskLists ? JSON.parse(savedTaskLists) : [];
-    
-    // Add this block to load all tasks on initial page load if no list is selected
-    if (!currentTaskListId) {
-        tasks = getAllTasks();
-    }
-    
     updateTaskListSelector();
-    
-    // Fix the selector change handler
+
     document.getElementById('taskListSelector').addEventListener('change', (e) => {
         const selectedValue = e.target.value;
-        
+
         if (selectedValue === 'new') {
-            // Reset selection to previous value
             e.target.value = currentTaskListId || '';
-            // Show dialog
             document.getElementById('newTaskListDialog').showModal();
             return;
         }
-        
+
         if (currentTaskListId) {
-            // Save current tasks to current task list
             const oldList = taskLists.find(list => list.id === currentTaskListId);
             if (oldList) {
                 oldList.tasks = tasks;
-                saveTaskLists();
             }
         }
-        
-        const newTaskListId = parseInt(selectedValue);
+
         if (!selectedValue) {
-            // "All Tasks" selected - merge tasks from all lists
-            tasks = getAllTasks();
-            currentTaskListId = null;  // Fix the typo here
+            tasks = getAllTasks(); // Aggregate tasks for "All Tasks"
+            currentTaskListId = null;
         } else {
-            // Load selected task list
-            const newList = taskLists.find(list => list.id === newTaskListId);
+            const newList = taskLists.find(list => list.id === selectedValue);
             if (newList) {
                 tasks = [...newList.tasks];
-                currentTaskListId = newTaskListId;
+                currentTaskListId = selectedValue;
             }
         }
-        
+
         renderTasks();
     });
+
+    document.getElementById('deleteCategoryBtn').addEventListener('click', deleteCurrentCategory);
 });
 
 function addTask() {
@@ -91,18 +81,28 @@ function addTask() {
     const descriptionInput = document.getElementById('taskDescription');
     const title = titleInput.value.trim();
     const description = descriptionInput.value.trim();
-    
+
     if (title) {
-        tasks.push({
+        const newTask = {
             id: Date.now(),
             text: title,
             description: description,
             completed: false
-        });
+        };
+
+        if (currentTaskListId) {
+            const currentList = taskLists.find(list => list.id === currentTaskListId);
+            if (currentList) {
+                currentList.tasks.push(newTask);
+                tasks = [...currentList.tasks]; // Ensure tasks array is updated for rendering
+            }
+        } else {
+            tasks.push(newTask);
+        }
+
         titleInput.value = '';
         descriptionInput.value = '';
-        saveToLocalStorage();
-        renderTasks();
+        renderTasks(); // Ensure tasks are displayed immediately
     }
 }
 
@@ -114,14 +114,12 @@ function toggleMenu(id) {
 
 function toggleTask(id) {
     if (showingCompleted) {
-        // If in completed view, restore task when unchecked
         const taskToRestore = completedTasks.find(task => task.id === id);
         if (taskToRestore) {
             completedTasks = completedTasks.filter(task => task.id !== id);
             const { completedDate, ...restoredTask } = taskToRestore;
             restoredTask.completed = false;
             tasks.push(restoredTask);
-            saveToLocalStorage();
             renderTasks();
             updateCompletedCount();
             
@@ -130,7 +128,6 @@ function toggleTask(id) {
             }
         }
     } else {
-        // If in main view, mark task as completed
         const task = tasks.find(t => t.id === id);
         if (task) {
             tasks = tasks.filter(t => t.id !== id);
@@ -139,7 +136,6 @@ function toggleTask(id) {
                 completed: true,
                 completedDate: new Date()
             });
-            saveToLocalStorage();
             renderTasks();
             updateCompletedCount();
         }
@@ -156,7 +152,6 @@ function archiveTask(id) {
             autoArchived: false
         });
         
-        saveToLocalStorage();
         renderTasks();
         updateArchivedCount();
         
@@ -166,25 +161,15 @@ function archiveTask(id) {
     }
 }
 
-function saveToLocalStorage() {
-    localStorage.setItem('archivedTasks', JSON.stringify(archivedTasks));
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-    localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
-    saveTaskLists();
-}
-
 function deleteTask(id) {
     if (showingArchived) {
         archivedTasks = archivedTasks.filter(task => task.id !== id);
-        saveToLocalStorage();
         renderTasks();
     } else if (showingCompleted) {
         completedTasks = completedTasks.filter(task => task.id !== id);
-        saveToLocalStorage();
         renderTasks();
     } else {
         tasks = tasks.filter(task => task.id !== id);
-        saveToLocalStorage();
         renderTasks();
     }
 }
@@ -289,7 +274,6 @@ function restoreTask(id) {
         const { archivedDate, autoArchived, ...restoredTask } = taskToRestore;
         tasks.push(restoredTask);
         
-        saveToLocalStorage();
         renderTasks();
         
         if (showingArchived && archivedTasks.length === 0) {
@@ -327,26 +311,6 @@ function handleDrop(e) {
     renderTasks();
 }
 
-function showProgressEditor(id) {
-    const taskElement = document.querySelector(`li[data-id="${id}"]`);
-    const progressEditor = taskElement.querySelector('.progress-editor');
-    progressEditor.style.display = 'block';
-}
-
-function updateProgress(id, value) {
-    const progressValue = parseInt(value);
-    const taskElement = document.querySelector(`li[data-id="${id}"]`);
-    
-    tasks = tasks.map(task =>
-        task.id === id ? {...task, progress: progressValue} : task
-    );
-    
-    const progressIndicator = taskElement.querySelector('.progress-indicator');
-    const progressText = taskElement.querySelector('.progress-text');
-    if (progressIndicator) progressIndicator.style.width = `${progressValue}%`;
-    if (progressText) progressText.textContent = `${progressValue}%`;
-}
-
 function updateArchivedCount() {
     const archivedCount = document.getElementById('archivedCount');
     if (archivedCount) {
@@ -369,14 +333,12 @@ function editTask(id) {
     const taskContent = taskElement.querySelector('.task-content');
     const taskActions = taskElement.querySelector('.task-actions');
 
-    // Create task list selector options
     const taskListOptions = taskLists.map(list => 
         `<option value="${list.id}" ${list.id === currentTaskListId ? 'selected' : ''}>
             ${list.name}
         </option>`
     ).join('');
 
-    // Create edit form
     const editForm = document.createElement('div');
     editForm.className = 'edit-form';
     editForm.innerHTML = `
@@ -392,13 +354,11 @@ function editTask(id) {
         </div>
     `;
 
-    // Hide original content and show edit form
     taskContent.style.display = 'none';
     taskActions.style.display = 'none';
     taskElement.appendChild(editForm);
     taskElement.classList.add('editing');
 
-    // Focus on title input
     const titleInput = editForm.querySelector('.edit-title');
     titleInput.focus();
 }
@@ -413,16 +373,12 @@ function saveEdit(id) {
 
     const task = tasks.find(t => t.id === id);
     if (task) {
-        // Update task details
         task.text = titleInput.value.trim();
         task.description = descriptionInput.value.trim();
 
-        // Move task to new list if changed
         if (newTaskListId && newTaskListId !== currentTaskListId) {
-            // Remove from current tasks
             tasks = tasks.filter(t => t.id !== id);
             
-            // Add to new task list
             const newList = taskLists.find(list => list.id === newTaskListId);
             if (newList) {
                 newList.tasks = newList.tasks || [];
@@ -430,7 +386,6 @@ function saveEdit(id) {
             }
         }
 
-        saveToLocalStorage();
         renderTasks();
     }
 
@@ -447,7 +402,6 @@ function exitEditMode(id) {
     const taskContent = taskElement.querySelector('.task-content');
     const taskActions = taskElement.querySelector('.task-actions');
 
-    // Remove edit form and show original content
     editForm.remove();
     taskContent.style.display = 'flex';
     taskActions.style.display = 'flex';
@@ -467,25 +421,20 @@ function createNewTaskList(event) {
         };
         
         taskLists.push(newTaskList);
-        saveTaskLists();
         updateTaskListSelector();
         
-        // Switch to new task list
         currentTaskListId = newTaskList.id;
         document.getElementById('taskListSelector').value = currentTaskListId;
         
-        // Clear and close dialog
         nameInput.value = '';
         document.getElementById('newTaskListDialog').close();
         
-        // Clear current tasks display
         tasks = [];
         renderTasks();
     }
 }
 
 function saveTaskLists() {
-    // Save current tasks to current task list
     if (currentTaskListId) {
         const currentList = taskLists.find(list => list.id === currentTaskListId);
         if (currentList) {
@@ -504,15 +453,45 @@ function updateTaskListSelector() {
                 ${list.name}
             </option>`
         ).join('') +
-        '<option value="new" class="new-list-option">New List...</option>';
+        '<option value="new" class="new-list-option">New Category...</option>';
+
+    let deleteCategoryIcon = document.getElementById('deleteCategoryIcon');
+    if (!deleteCategoryIcon) {
+        deleteCategoryIcon = document.createElement('span');
+        deleteCategoryIcon.id = 'deleteCategoryIcon';
+        deleteCategoryIcon.className = 'delete-category-icon';
+        deleteCategoryIcon.title = 'Delete Current Category';
+        deleteCategoryIcon.innerHTML = '🗑️';
+        selector.parentNode.appendChild(deleteCategoryIcon);
+    }
+
+    deleteCategoryIcon.onclick = (e) => {
+        e.preventDefault();
+        if (currentTaskListId) {
+            deleteCurrentCategory();
+        } else {
+            alert('Cannot delete "All Tasks" category.');
+        }
+    };
 }
 
 function getAllTasks() {
-    // Merge tasks from all lists
-    const allTasks = taskLists.reduce((acc, list) => {
-        return acc.concat(list.tasks || []);
-    }, []);
-    
-    // Remove duplicates based on task ID
-    return Array.from(new Map(allTasks.map(task => [task.id, task])).values());
+    return taskLists.reduce((acc, list) => acc.concat(list.tasks || []), []);
+}
+
+function deleteCurrentCategory() {
+    if (!currentTaskListId) {
+        alert('Cannot delete "All Tasks" category.');
+        return;
+    }
+
+    const confirmDelete = confirm('Are you sure you want to delete this category? All tasks in this category will also be deleted.');
+    if (confirmDelete) {
+        taskLists = taskLists.filter(list => list.id !== currentTaskListId);
+        currentTaskListId = null;
+
+        tasks = getAllTasks(); // Reset to "All Tasks"
+        updateTaskListSelector();
+        renderTasks();
+    }
 }
