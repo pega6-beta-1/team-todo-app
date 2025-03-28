@@ -73,6 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTasks();
     });
 
+    document.getElementById('deleteCategoryBtn').addEventListener('click', deleteCurrentCategory);
+
     document.getElementById('aiGeneratorButton').addEventListener('click', () => {
         document.getElementById('aiGeneratorDialog').showModal();
     });
@@ -146,9 +148,6 @@ window.generateTasks = async function generateTasks() {
         alert('Failed to generate tasks. Please try again.');
     }
 };
-
-    document.getElementById('deleteCategoryBtn').addEventListener('click', deleteCurrentCategory);
-});
 
 function addTask() {
     const titleInput = document.getElementById('taskInput');
