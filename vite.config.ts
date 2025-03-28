@@ -9,6 +9,13 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true
+    sourcemap: true,
+    rollupOptions: {
+      input: {
+        main: './index.html',
+        archived: './archived.html',
+        completed: './completed.html'
+      }
+    }
   }
 })
