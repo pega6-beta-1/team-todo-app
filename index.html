@@ -8,6 +8,12 @@
 </head>
 <body>
     <div class="container">
+        <div class="task-list-controls">
+            <select id="taskListSelector" class="task-list-selector">
+                <option value="">All Tasks</option>
+                <option value="new" class="new-list-option">New List...</option>
+            </select>
+        </div>
         <h1>To-Do List</h1>
         <div class="nav-buttons">
             <button onclick="window.location.href='archived.html'" class="section-toggle">
@@ -26,6 +32,16 @@
         </div>
         <ul id="taskList"></ul>
     </div>
+    <dialog id="newTaskListDialog" class="task-list-dialog">
+        <form method="dialog">
+            <h3>Create New Task List</h3>
+            <input type="text" id="taskListName" placeholder="Enter task list name">
+            <div class="dialog-buttons">
+                <button type="button" onclick="this.closest('dialog').close()">Cancel</button>
+                <button type="submit" onclick="createNewTaskList(event)">Create</button>
+            </div>
+        </form>
+    </dialog>
     <script src="app.js"></script>
 </body>
 </html>

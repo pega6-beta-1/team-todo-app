@@ -19,6 +19,7 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     margin-top: 20px; /* Added to prevent top task from being cut off */
     margin-bottom: 20px;
+    position: relative;
 }
 
 .container.showing-archived {
@@ -618,4 +619,53 @@ li:last-child {
 
 .edit-actions .cancel-btn:hover {
     background: #e8eaed;
+}
+
+.task-list-controls {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.task-list-selector {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    min-width: 200px;
+    cursor: pointer;
+}
+
+.task-list-selector option.new-list-option {
+    font-style: italic;
+    border-top: 1px solid #ddd;
+    padding-top: 4px;
+    color: #1a73e8;
+}
+
+.task-list-dialog {
+    border: none;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.task-list-dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.task-list-dialog h3 {
+    margin-bottom: 16px;
+    color: #1a73e8;
+}
+
+.task-list-dialog input {
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
 }

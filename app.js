@@ -3,6 +3,8 @@ let archivedTasks = [];
 let completedTasks = [];
 let showingArchived = false;
 let showingCompleted = false;
+let taskLists = [];
+let currentTaskListId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     const savedTasks = localStorage.getItem('tasks');
@@ -33,6 +35,49 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCompletedCount();
     
     document.querySelector('.section-toggle').addEventListener('click', toggleSection);
+
+    // Load task lists
+    const savedTaskLists = localStorage.getItem('taskLists');
+    taskLists = savedTaskLists ? JSON.parse(savedTaskLists) : [];
+    updateTaskListSelector();
+    
+    // Replace the newTaskList button listener with updated selector logic
+    document.getElementById('taskListSelector').addEventListener('change', (e) => {
+        const selectedValue = e.target.value;
+        
+        if (selectedValue === 'new') {
+            // Reset selection to previous value
+            e.target.value = currentTaskListId || '';
+            // Show dialog
+            document.getElementById('newTaskListDialog').showModal();
+            return;
+        }
+        
+        const newTaskListId = parseInt(selectedValue);
+        if (currentTaskListId) {
+            // Save current tasks to current task list
+            const oldList = taskLists.find(list => list.id === currentTaskListId);
+            if (oldList) {
+                oldList.tasks = tasks;
+            }
+        }
+        
+        if (!selectedValue) {
+            // "All Tasks" selected
+            tasks = [];
+            currentTaskListId = null;
+        } else {
+            // Load selected task list
+            const newList = taskLists.find(list => list.id === newTaskListId);
+            if (newList) {
+                tasks = newList.tasks;
+                currentTaskListId = newTaskListId;
+            }
+        }
+        
+        renderTasks();
+        saveTaskLists();
+    });
 });
 
 function addTask() {
@@ -119,6 +164,7 @@ function saveToLocalStorage() {
     localStorage.setItem('archivedTasks', JSON.stringify(archivedTasks));
     localStorage.setItem('tasks', JSON.stringify(tasks));
     localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+    saveTaskLists();
 }
 
 function deleteTask(id) {
@@ -373,4 +419,57 @@ function exitEditMode(id) {
     taskContent.style.display = 'flex';
     taskActions.style.display = 'flex';
     taskElement.classList.remove('editing');
+}
+
+function createNewTaskList(event) {
+    event.preventDefault();
+    const nameInput = document.getElementById('taskListName');
+    const name = nameInput.value.trim();
+    
+    if (name) {
+        const newTaskList = {
+            id: Date.now(),
+            name: name,
+            tasks: []
+        };
+        
+        taskLists.push(newTaskList);
+        saveTaskLists();
+        updateTaskListSelector();
+        
+        // Switch to new task list
+        currentTaskListId = newTaskList.id;
+        document.getElementById('taskListSelector').value = currentTaskListId;
+        
+        // Clear and close dialog
+        nameInput.value = '';
+        document.getElementById('newTaskListDialog').close();
+        
+        // Clear current tasks display
+        tasks = [];
+        renderTasks();
+    }
+}
+
+function saveTaskLists() {
+    // Save current tasks to current task list
+    if (currentTaskListId) {
+        const currentList = taskLists.find(list => list.id === currentTaskListId);
+        if (currentList) {
+            currentList.tasks = tasks;
+        }
+    }
+    localStorage.setItem('taskLists', JSON.stringify(taskLists));
+}
+
+function updateTaskListSelector() {
+    const selector = document.getElementById('taskListSelector');
+    
+    selector.innerHTML = '<option value="">All Tasks</option>' +
+        taskLists.map(list => 
+            `<option value="${list.id}" ${list.id === currentTaskListId ? 'selected' : ''}>
+                ${list.name}
+            </option>`
+        ).join('') +
+        '<option value="new" class="new-list-option">New List...</option>';
 }
