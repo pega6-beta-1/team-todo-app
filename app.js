@@ -90,7 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-async function generateTasks() {
+// Attach generateTasks to the global window object
+window.generateTasks = async function generateTasks() {
     const description = document.getElementById('aiActivityDescription').value.trim();
     if (!description) {
         alert('Please enter a description for the activity.');
@@ -111,7 +112,7 @@ async function generateTasks() {
                 'Authorization': `Bearer ${apiKey}`
             },
             body: JSON.stringify({
-                model: 'text-davinci-003',
+                model: 'gpt-4o-mini',
                 prompt: `Break down the following activity into a list of tasks and suggest a name for the task list:\n\n${description}`,
                 max_tokens: 200
             })
@@ -142,7 +143,7 @@ async function generateTasks() {
         console.error('Error generating tasks:', error);
         alert('Failed to generate tasks. Please try again.');
     }
-}
+};
 
 function addTask() {
     const titleInput = document.getElementById('taskInput');
