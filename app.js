@@ -105,7 +105,7 @@ window.generateTasks = async function generateTasks() {
     }
 
     try {
-        const response = await fetch('https://api.openai.com/v1/completions', {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -113,32 +113,46 @@ window.generateTasks = async function generateTasks() {
             },
             body: JSON.stringify({
                 model: 'gpt-4o-mini',
-                prompt: `Break down the following activity into a list of tasks and suggest a name for the task list:\n\n${description}`,
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are a helpful assistant that breaks down activities into task lists.'
+                    },
+                    {
+                        role: 'user',
+                        content: `Break down the following activity into a list of tasks and suggest a name for the task list:\n\n${description}`
+                    }
+                ],
                 max_tokens: 200
             })
         });
 
         const data = await response.json();
-        const result = data.choices[0].text.trim();
 
-        const [listName, ...taskDescriptions] = result.split('\n').filter(line => line.trim());
-        const newTaskList = {
-            id: Date.now(),
-            name: listName,
-            tasks: taskDescriptions.map((task, index) => ({
-                id: Date.now() + index,
-                text: task,
-                description: '',
-                completed: false
-            }))
-        };
+        if (response.ok) {
+            const result = data.choices[0].message.content.trim();
+            const [listName, ...taskDescriptions] = result.split('\n').filter(line => line.trim());
+            const newTaskList = {
+                id: Date.now(),
+                name: listName,
+                tasks: taskDescriptions.map((task, index) => ({
+                    id: Date.now() + index,
+                    text: task,
+                    description: '',
+                    completed: false
+                }))
+            };
 
-        taskLists.push(newTaskList);
-        saveTaskLists();
-        updateTaskListSelector();
+            taskLists.push(newTaskList);
+            saveTaskLists();
+            updateTaskListSelector();
 
-        document.getElementById('aiGeneratorDialog').close();
-        alert(`Task list "${listName}" has been created.`);
+            document.getElementById('aiGeneratorDialog').close();
+            alert(`Task list "${listName}" has been created.`);
+        } else {
+            console.error('Error from OpenAI API:', data);
+            alert(`Failed to generate tasks: ${data.error.message}`);
+        }
     } catch (error) {
         console.error('Error generating tasks:', error);
         alert('Failed to generate tasks. Please try again.');
