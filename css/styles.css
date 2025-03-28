@@ -329,6 +329,21 @@ li:last-child {
     background: #45a049;
 }
 
+.edit-form .edit-task-list {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-bottom: 8px;
+    background-color: white;
+}
+
+.edit-form .edit-task-list:focus {
+    border-color: #1a73e8;
+    outline: none;
+}
+
 .menu-btn {
     background: none;
     border: none;

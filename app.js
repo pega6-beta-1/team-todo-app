@@ -39,9 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load task lists
     const savedTaskLists = localStorage.getItem('taskLists');
     taskLists = savedTaskLists ? JSON.parse(savedTaskLists) : [];
+    
+    // Add this block to load all tasks on initial page load if no list is selected
+    if (!currentTaskListId) {
+        tasks = getAllTasks();
+    }
+    
     updateTaskListSelector();
     
-    // Replace the newTaskList button listener with updated selector logic
+    // Fix the selector change handler
     document.getElementById('taskListSelector').addEventListener('change', (e) => {
         const selectedValue = e.target.value;
         
@@ -53,30 +59,30 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        const newTaskListId = parseInt(selectedValue);
         if (currentTaskListId) {
             // Save current tasks to current task list
             const oldList = taskLists.find(list => list.id === currentTaskListId);
             if (oldList) {
                 oldList.tasks = tasks;
+                saveTaskLists();
             }
         }
         
+        const newTaskListId = parseInt(selectedValue);
         if (!selectedValue) {
-            // "All Tasks" selected
-            tasks = [];
-            currentTaskListId = null;
+            // "All Tasks" selected - merge tasks from all lists
+            tasks = getAllTasks();
+            currentTaskListId = null;  // Fix the typo here
         } else {
             // Load selected task list
             const newList = taskLists.find(list => list.id === newTaskListId);
             if (newList) {
-                tasks = newList.tasks;
+                tasks = [...newList.tasks];
                 currentTaskListId = newTaskListId;
             }
         }
         
         renderTasks();
-        saveTaskLists();
     });
 });
 
@@ -361,8 +367,14 @@ function editTask(id) {
 
     const taskElement = document.querySelector(`li[data-id="${id}"]`);
     const taskContent = taskElement.querySelector('.task-content');
-    const taskHeader = taskElement.querySelector('.task-header');
     const taskActions = taskElement.querySelector('.task-actions');
+
+    // Create task list selector options
+    const taskListOptions = taskLists.map(list => 
+        `<option value="${list.id}" ${list.id === currentTaskListId ? 'selected' : ''}>
+            ${list.name}
+        </option>`
+    ).join('');
 
     // Create edit form
     const editForm = document.createElement('div');
@@ -370,6 +382,10 @@ function editTask(id) {
     editForm.innerHTML = `
         <input type="text" class="edit-title" value="${task.text}" placeholder="Task title">
         <input type="text" class="edit-description" value="${task.description || ''}" placeholder="Task description (optional)">
+        <select class="edit-task-list">
+            <option value="">Select Task List</option>
+            ${taskListOptions}
+        </select>
         <div class="edit-actions">
             <button class="save-btn" onclick="saveEdit(${id})">Save</button>
             <button class="cancel-btn" onclick="cancelEdit(${id})">Cancel</button>
@@ -392,11 +408,28 @@ function saveEdit(id) {
     const editForm = taskElement.querySelector('.edit-form');
     const titleInput = editForm.querySelector('.edit-title');
     const descriptionInput = editForm.querySelector('.edit-description');
+    const taskListSelect = editForm.querySelector('.edit-task-list');
+    const newTaskListId = parseInt(taskListSelect.value);
 
     const task = tasks.find(t => t.id === id);
     if (task) {
+        // Update task details
         task.text = titleInput.value.trim();
         task.description = descriptionInput.value.trim();
+
+        // Move task to new list if changed
+        if (newTaskListId && newTaskListId !== currentTaskListId) {
+            // Remove from current tasks
+            tasks = tasks.filter(t => t.id !== id);
+            
+            // Add to new task list
+            const newList = taskLists.find(list => list.id === newTaskListId);
+            if (newList) {
+                newList.tasks = newList.tasks || [];
+                newList.tasks.push(task);
+            }
+        }
+
         saveToLocalStorage();
         renderTasks();
     }
@@ -472,4 +505,14 @@ function updateTaskListSelector() {
             </option>`
         ).join('') +
         '<option value="new" class="new-list-option">New List...</option>';
+}
+
+function getAllTasks() {
+    // Merge tasks from all lists
+    const allTasks = taskLists.reduce((acc, list) => {
+        return acc.concat(list.tasks || []);
+    }, []);
+    
+    // Remove duplicates based on task ID
+    return Array.from(new Map(allTasks.map(task => [task.id, task])).values());
 }
