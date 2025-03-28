@@ -43,6 +43,17 @@
             </div>
         </form>
     </dialog>
-    <script src="app.js"></script>
+    <dialog id="aiGeneratorDialog" class="ai-generator-dialog">
+        <form method="dialog">
+            <h3>AI Task Generator</h3>
+            <p>Describe the activity you want to generate tasks for:</p>
+            <textarea id="aiActivityDescription" placeholder="Enter activity description" rows="4"></textarea>
+            <div class="dialog-buttons">
+                <button type="button" onclick="this.closest('dialog').close()">Cancel</button>
+                <button type="button" onclick="generateTasks()">Submit</button>
+            </div>
+        </form>
+    </dialog>
+    <script type="module" src="app.js"></script>
 </body>
 </html>

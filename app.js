@@ -84,7 +84,65 @@ document.addEventListener('DOMContentLoaded', () => {
         
         renderTasks();
     });
+
+    document.getElementById('aiGeneratorButton').addEventListener('click', () => {
+        document.getElementById('aiGeneratorDialog').showModal();
+    });
 });
+
+async function generateTasks() {
+    const description = document.getElementById('aiActivityDescription').value.trim();
+    if (!description) {
+        alert('Please enter a description for the activity.');
+        return;
+    }
+
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    if (!apiKey) {
+        alert('API key for ChatGPT is missing.');
+        return;
+    }
+
+    try {
+        const response = await fetch('https://api.openai.com/v1/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: 'text-davinci-003',
+                prompt: `Break down the following activity into a list of tasks and suggest a name for the task list:\n\n${description}`,
+                max_tokens: 200
+            })
+        });
+
+        const data = await response.json();
+        const result = data.choices[0].text.trim();
+
+        const [listName, ...taskDescriptions] = result.split('\n').filter(line => line.trim());
+        const newTaskList = {
+            id: Date.now(),
+            name: listName,
+            tasks: taskDescriptions.map((task, index) => ({
+                id: Date.now() + index,
+                text: task,
+                description: '',
+                completed: false
+            }))
+        };
+
+        taskLists.push(newTaskList);
+        saveTaskLists();
+        updateTaskListSelector();
+
+        document.getElementById('aiGeneratorDialog').close();
+        alert(`Task list "${listName}" has been created.`);
+    } catch (error) {
+        console.error('Error generating tasks:', error);
+        alert('Failed to generate tasks. Please try again.');
+    }
+}
 
 function addTask() {
     const titleInput = document.getElementById('taskInput');
