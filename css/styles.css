@@ -560,3 +560,62 @@ li:last-child {
 .back-btn:hover {
     background: #555;
 }
+
+.task.editing {
+    background: #f0f7ff;
+    border: 1px solid #1a73e8;
+    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.2);
+}
+
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    padding: 8px;
+}
+
+.edit-form input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.edit-form .edit-title {
+    font-weight: 500;
+}
+
+.edit-form .edit-description {
+    color: #666;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.edit-actions button {
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+.edit-actions .save-btn {
+    background: #1a73e8;
+    color: white;
+}
+
+.edit-actions .save-btn:hover {
+    background: #1557b0;
+}
+
+.edit-actions .cancel-btn {
+    background: #f1f3f4;
+    color: #5f6368;
+}
+
+.edit-actions .cancel-btn:hover {
+    background: #e8eaed;
+}

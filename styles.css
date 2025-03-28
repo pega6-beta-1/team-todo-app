@@ -6,6 +6,18 @@
 
 .input-section {
     margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.input-section input {
+    padding: 8px;
+    width: 100%;
+}
+
+.input-section button {
+    align-self: flex-start;
 }
 
 input[type="text"] {
@@ -71,4 +83,18 @@ li:hover {
 
 .in-completed-view {
     background-color: #666;
+}
+
+.task-description {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.task-content {
+    flex-grow: 1;
+    margin-right: 8px;
 }
