@@ -132,6 +132,19 @@ function toggleTask(id) {
 			const { completedDate, ...restoredTask } = taskToRestore;
 			restoredTask.completed = false;
 			tasks.push(restoredTask);
+			
+			// Save state to localStorage
+			localStorage.setItem("completedTasks", JSON.stringify(completedTasks));
+			
+			// If we're in a specific category
+			if (currentTaskListId) {
+				const currentList = taskLists.find((list) => list.id === currentTaskListId);
+				if (currentList) {
+					currentList.tasks.push(restoredTask);
+					saveTaskLists();
+				}
+			}
+			
 			renderTasks();
 			updateCompletedCount();
 
@@ -148,6 +161,19 @@ function toggleTask(id) {
 				completed: true,
 				completedDate: new Date(),
 			});
+			
+			// Save state to localStorage
+			localStorage.setItem("completedTasks", JSON.stringify(completedTasks));
+			
+			// If we're in a specific category, update that list
+			if (currentTaskListId) {
+				const currentList = taskLists.find((list) => list.id === currentTaskListId);
+				if (currentList) {
+					currentList.tasks = tasks;
+					saveTaskLists();
+				}
+			}
+			
 			renderTasks();
 			updateCompletedCount();
 		}
@@ -164,6 +190,18 @@ function archiveTask(id) {
 			autoArchived: false,
 		});
 
+		// Save to localStorage
+		localStorage.setItem("archivedTasks", JSON.stringify(archivedTasks));
+		
+		// If we're in a specific category, update that list
+		if (currentTaskListId) {
+			const currentList = taskLists.find((list) => list.id === currentTaskListId);
+			if (currentList) {
+				currentList.tasks = tasks;
+				saveTaskLists();
+			}
+		}
+
 		renderTasks();
 		updateArchivedCount();
 
@@ -176,12 +214,24 @@ function archiveTask(id) {
 function deleteTask(id) {
 	if (showingArchived) {
 		archivedTasks = archivedTasks.filter((task) => task.id !== id);
+		localStorage.setItem("archivedTasks", JSON.stringify(archivedTasks));
 		renderTasks();
 	} else if (showingCompleted) {
 		completedTasks = completedTasks.filter((task) => task.id !== id);
+		localStorage.setItem("completedTasks", JSON.stringify(completedTasks));
 		renderTasks();
 	} else {
 		tasks = tasks.filter((task) => task.id !== id);
+		
+		// If we're in a specific category, update that list
+		if (currentTaskListId) {
+			const currentList = taskLists.find((list) => list.id === currentTaskListId);
+			if (currentList) {
+				currentList.tasks = tasks;
+				saveTaskLists();
+			}
+		}
+		
 		renderTasks();
 	}
 }
@@ -291,6 +341,18 @@ function restoreTask(id) {
 		archivedTasks = archivedTasks.filter((task) => task.id !== id);
 		const { archivedDate, autoArchived, ...restoredTask } = taskToRestore;
 		tasks.push(restoredTask);
+		
+		// Save to localStorage
+		localStorage.setItem("archivedTasks", JSON.stringify(archivedTasks));
+		
+		// If we're in a specific category, add the task to that list
+		if (currentTaskListId) {
+			const currentList = taskLists.find((list) => list.id === currentTaskListId);
+			if (currentList) {
+				currentList.tasks.push(restoredTask);
+				saveTaskLists();
+			}
+		}
 
 		renderTasks();
 
