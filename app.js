@@ -131,6 +131,8 @@ function toggleTask(id) {
 			completedTasks = completedTasks.filter((task) => task.id !== id);
 			const { completedDate, ...restoredTask } = taskToRestore;
 			restoredTask.completed = false;
+			
+			// Add to active tasks
 			tasks.push(restoredTask);
 			
 			// Save state to localStorage
@@ -143,6 +145,20 @@ function toggleTask(id) {
 					currentList.tasks.push(restoredTask);
 					saveTaskLists();
 				}
+			} else {
+				// When in "All Tasks" view, need to assign to a category
+				// Find the first category or create a default one
+				if (taskLists.length > 0) {
+					taskLists[0].tasks.push(restoredTask);
+				} else {
+					const defaultList = {
+						id: Date.now(),
+						name: "Default",
+						tasks: [restoredTask]
+					};
+					taskLists.push(defaultList);
+				}
+				saveTaskLists();
 			}
 			
 			renderTasks();
@@ -155,7 +171,10 @@ function toggleTask(id) {
 	} else {
 		const task = tasks.find((t) => t.id === id);
 		if (task) {
+			// Remove from active tasks array
 			tasks = tasks.filter((t) => t.id !== id);
+			
+			// Add to completed tasks
 			completedTasks.push({
 				...task,
 				completed: true,
@@ -169,9 +188,17 @@ function toggleTask(id) {
 			if (currentTaskListId) {
 				const currentList = taskLists.find((list) => list.id === currentTaskListId);
 				if (currentList) {
-					currentList.tasks = tasks;
+					currentList.tasks = currentList.tasks.filter(t => t.id !== id);
 					saveTaskLists();
 				}
+			} else {
+				// When in "All Tasks" view, remove from all categories
+				for (const list of taskLists) {
+					if (list.tasks) {
+						list.tasks = list.tasks.filter(t => t.id !== id);
+					}
+				}
+				saveTaskLists();
 			}
 			
 			renderTasks();
@@ -183,7 +210,10 @@ function toggleTask(id) {
 function archiveTask(id) {
 	const taskToArchive = tasks.find((task) => task.id === id);
 	if (taskToArchive) {
+		// Remove from active tasks array
 		tasks = tasks.filter((task) => task.id !== id);
+		
+		// Add to archived tasks
 		archivedTasks.push({
 			...taskToArchive,
 			archivedDate: new Date(),
@@ -197,9 +227,17 @@ function archiveTask(id) {
 		if (currentTaskListId) {
 			const currentList = taskLists.find((list) => list.id === currentTaskListId);
 			if (currentList) {
-				currentList.tasks = tasks;
+				currentList.tasks = currentList.tasks.filter(t => t.id !== id);
 				saveTaskLists();
 			}
+		} else {
+			// When in "All Tasks" view, remove from all categories
+			for (const list of taskLists) {
+				if (list.tasks) {
+					list.tasks = list.tasks.filter(t => t.id !== id);
+				}
+			}
+			saveTaskLists();
 		}
 
 		renderTasks();
@@ -338,8 +376,11 @@ function renderTasks() {
 function restoreTask(id) {
 	const taskToRestore = archivedTasks.find((task) => task.id === id);
 	if (taskToRestore) {
+		// Remove from archived tasks
 		archivedTasks = archivedTasks.filter((task) => task.id !== id);
 		const { archivedDate, autoArchived, ...restoredTask } = taskToRestore;
+		
+		// Add to active tasks
 		tasks.push(restoredTask);
 		
 		// Save to localStorage
@@ -352,6 +393,33 @@ function restoreTask(id) {
 				currentList.tasks.push(restoredTask);
 				saveTaskLists();
 			}
+		} else {
+			// When in "All Tasks" view, need to assign to a category
+			// Find the original category if it exists, or add to the first one
+			// Find the list where this task originally belonged
+			let foundList = false;
+			for (const list of taskLists) {
+				if (list.tasks && list.tasks.some(t => t.id === restoredTask.id)) {
+					list.tasks.push(restoredTask);
+					foundList = true;
+					break;
+				}
+			}
+			
+			// If no matching list found, assign to the first list or create one
+			if (!foundList) {
+				if (taskLists.length > 0) {
+					taskLists[0].tasks.push(restoredTask);
+				} else {
+					const defaultList = {
+						id: Date.now(),
+						name: "Default",
+						tasks: [restoredTask]
+					};
+					taskLists.push(defaultList);
+				}
+			}
+			saveTaskLists();
 		}
 
 		renderTasks();
