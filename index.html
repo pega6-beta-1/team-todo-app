@@ -32,6 +32,7 @@
                         <input type="text" id="taskDescription" placeholder="Enter task description (optional)">
                     </div>
                     <button onclick="addTask()">Add Task</button>
+                    <button id="aiGeneratorBtn" class="ai-generator-btn">AI Generator</button>
                 </div>
                 <ul id="taskList"></ul>
             </div>
@@ -47,6 +48,34 @@
             </dialog>
         </div>
     </div>
+
+    <dialog id="newTaskListDialog" class="dialog">
+        <h3>Create New Category</h3>
+        <form onsubmit="createNewTaskList(event)">
+            <input type="text" id="taskListName" placeholder="Category name" required>
+            <div class="dialog-buttons">
+                <button type="button" onclick="this.closest('dialog').close()">Cancel</button>
+                <button type="submit">Create</button>
+            </div>
+        </form>
+    </dialog>
+
+    <dialog id="aiGeneratorDialog" class="dialog ai-dialog">
+        <h3>AI Task Generator</h3>
+        <form id="aiGeneratorForm">
+            <p>Describe an activity or project you want to break down into tasks:</p>
+            <textarea id="activityDescription" rows="5" placeholder="e.g., Plan a weekend trip to the beach" required></textarea>
+            <div class="dialog-buttons">
+                <button type="button" onclick="this.closest('dialog').close()">Cancel</button>
+                <button type="submit" id="generateTasksBtn">Generate Tasks</button>
+            </div>
+        </form>
+        <div id="generatingIndicator" class="generating-indicator" style="display: none;">
+            <p>Generating tasks...</p>
+            <div class="spinner"></div>
+        </div>
+    </dialog>
+
     <script src="app.js"></script>
 </body>
 </html>
