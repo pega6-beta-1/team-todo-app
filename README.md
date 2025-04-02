@@ -1,47 +1,55 @@
-# To-Do List App
+# Team Todo App
 
-A simple and intuitive To-Do List application built with HTML, CSS, and JavaScript.
-
-## Description
-
-This To-Do List app allows users to add, complete, and delete tasks. It features a clean interface and stores tasks in memory.
-
-## Installation
-
-```bash
-npm install
-```
+A collaborative to-do list application built with Vite.
 
 ## Features
 
-- Add new tasks
-- Mark tasks as complete
-- Delete tasks
-- Clean and responsive design
-- Maximum limit of 20 active tasks at once
+- Create and manage tasks with descriptions
+- Organize tasks into categories
+- Archive and mark tasks as completed
+- AI-powered task generation using OpenAI
 
-## Usage
+## Setup
 
-Simply open the index.html file in your web browser to start using the app.
+1. Clone the repository
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Set up environment variables:
+   - Create a `.env` file in the project root
+   - Add your OpenAI API key:
+     ```
+     OPENAI_API_KEY=your_api_key_here
+     ```
+4. Start the development server:
+   ```
+   npm run dev
+   ```
 
-## Deployment
+## Environment Variables
 
-This app can be deployed to Netlify in a few simple steps:
+The application uses environment variables for configuration. Create a `.env` file in the project root with the following variables:
 
-1. Push your code to a GitHub repository
-2. Sign up for a Netlify account at [netlify.com](https://www.netlify.com)
-3. Click "New site from Git"
-4. Choose your GitHub repository
-5. Deploy settings will be automatically configured by netlify.toml
-6. Click "Deploy site"
+- `OPENAI_API_KEY`: Your OpenAI API key (required for AI-generated tasks)
 
-The app will be automatically deployed and you'll receive a unique URL.
+## Development
 
-## Contributing
+The application is built with:
 
-Pull requests are welcome. For major changes, please open an issue first
-to discuss what you would like to change.
+- Vite for bundling and development
+- Plain JavaScript for the main application logic
+- OpenAI API for AI task generation
 
-## License
+## Project Structure
 
-[MIT](https://choosealicense.com/licenses/mit/)
+- `app.js`: Main application logic
+- `index.html`, `archived.html`, `completed.html`: Main HTML files
+- `css/styles.css`: CSS styles
+- `src/config/openai.js`: OpenAI API utility functions
+- `src/config/env.js`: Environment variable configuration
+
+## Security Notes
+
+- The `.env` file is excluded from version control in `.gitignore`
+- In production, environment variables should be set in the hosting environment rather than in a file

@@ -1,3 +1,17 @@
-/node_modules
-/dist
+# Environment variables
 .env
+
+# Node modules
+node_modules/
+
+# Build files
+dist/
+build/
+
+# IDE files
+.idea/
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db

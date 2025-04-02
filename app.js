@@ -1,3 +1,5 @@
+import { generateAITasks } from './src/config/openai.js';
+
 let tasks = [];
 let archivedTasks = [];
 let completedTasks = [];
@@ -713,72 +715,11 @@ async function handleAIGeneratorSubmit(event) {
 }
 
 async function generateTasksWithAI(activityDescription) {
-	// The prompt for the AI
-	const prompt = `Break down the following activity into 5-10 specific tasks that would help complete it. 
-	Format your response as a JSON array of task objects with 'text' and 'description' properties.
-	Also include a short category name (3-4 words max) that summarizes this activity.
-	
-	Activity: ${activityDescription}
-	
-	Response format example:
-	{
-		"categoryName": "Weekend Beach Trip",
-		"tasks": [
-			{
-				"text": "Research beach locations",
-				"description": "Look up beaches within driving distance and check reviews"
-			},
-			{
-				"text": "Pack beach essentials",
-				"description": "Sunscreen, towels, umbrella, snacks, water, etc."
-			}
-		]
-	}`;
-
 	try {
-		// Call ChatGPT API
-		const response = await fetch("https://api.openai.com/v1/chat/completions", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				"Authorization": `Bearer ${getOpenAIKey()}`
-			},
-			body: JSON.stringify({
-				model: "gpt-4o-mini",
-				messages: [{ role: "user", content: prompt }],
-				temperature: 0.7
-			})
-		});
-		
-		if (!response.ok) {
-			const errorData = await response.json();
-			throw new Error(errorData.error?.message || "Failed to generate tasks");
-		}
-		
-		const data = await response.json();
-		const content = data.choices[0]?.message?.content;
-		
-		if (!content) {
-			throw new Error("No content returned from AI");
-		}
-		
-		// Parse the JSON response
-		// The AI might sometimes include markdown code blocks, so we need to clean that up
-		const jsonString = content.replace(/```json|```/g, "").trim();
-		const parsedResponse = JSON.parse(jsonString);
-		
-		return {
-			categoryName: parsedResponse.categoryName,
-			tasks: parsedResponse.tasks.map(task => ({
-				id: Date.now() + Math.floor(Math.random() * 1000),
-				text: task.text,
-				description: task.description || "",
-				completed: false
-			}))
-		};
+		return await generateAITasks(activityDescription);
 	} catch (error) {
-		console.error("Error calling OpenAI API:", error);
-		throw new Error("Failed to generate tasks. Please try again later.");
+		console.error("Error generating tasks:", error);
+		throw error;
 	}
 }
 
@@ -808,21 +749,4 @@ function createCategoryWithTasks(categoryName, tasksList) {
 	
 	// Render the tasks
 	renderTasks();
-}
-
-function getOpenAIKey() {
-	// In a real application, you would handle this more securely
-	// For this demo, we'll prompt the user for their key if not stored
-	let apiKey = localStorage.getItem("openai_api_key");
-	
-	if (!apiKey) {
-		apiKey = prompt("Please enter your OpenAI API key to generate tasks. This will be stored in your browser for future use.");
-		if (apiKey) {
-			localStorage.setItem("openai_api_key", apiKey);
-		} else {
-			throw new Error("API key is required to generate tasks");
-		}
-	}
-	
-	return apiKey;
 }
