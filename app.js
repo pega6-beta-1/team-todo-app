@@ -67,13 +67,16 @@ document.addEventListener("DOMContentLoaded", () => {
 				tasks = getAllTasks(); // Aggregate tasks for "All Tasks"
 				currentTaskListId = null;
 			} else {
-				const newList = taskLists.find((list) => list.id === selectedValue);
+				// Convert to number to ensure comparison works properly
+				const selectedId = Number(selectedValue);
+				const newList = taskLists.find((list) => list.id === selectedId);
 				if (newList) {
 					tasks = [...newList.tasks];
-					currentTaskListId = selectedValue;
+					currentTaskListId = selectedId;
 				}
 			}
 
+			saveTaskLists();
 			renderTasks();
 		});
 
@@ -387,7 +390,7 @@ function saveEdit(id) {
 	const titleInput = editForm.querySelector(".edit-title");
 	const descriptionInput = editForm.querySelector(".edit-description");
 	const taskListSelect = editForm.querySelector(".edit-task-list");
-	const newTaskListId = Number.parseInt(taskListSelect.value);
+	const newTaskListId = taskListSelect.value ? Number(taskListSelect.value) : null;
 
 	const task = tasks.find((t) => t.id === id);
 	if (task) {
