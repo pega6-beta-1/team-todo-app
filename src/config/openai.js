@@ -5,7 +5,7 @@
 // Get the API key from environment variables
 const getApiKey = () => {
   // Use Vite's built-in import.meta.env for accessing environment variables
-  if (import.meta.env.VITE_OPENAI_API_KEY) {
+  if (import.meta?.env?.VITE_OPENAI_API_KEY) {
     return import.meta.env.VITE_OPENAI_API_KEY;
   }
   
