@@ -4,14 +4,9 @@
 
 // Get the API key from environment variables
 const getApiKey = () => {
-  // Check for environment variables with VITE_ prefix first (for Vercel deployment)
-  if (process.env.VITE_OPENAI_API_KEY) {
-    return process.env.VITE_OPENAI_API_KEY;
-  }
-  
-  // Fall back to regular environment variable (for local development)
-  if (process.env.OPENAI_API_KEY) {
-    return process.env.OPENAI_API_KEY;
+  // Use Vite's built-in import.meta.env for accessing environment variables
+  if (import.meta.env.VITE_OPENAI_API_KEY) {
+    return import.meta.env.VITE_OPENAI_API_KEY;
   }
   
   console.warn('OpenAI API key not found in environment variables');
