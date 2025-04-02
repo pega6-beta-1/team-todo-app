@@ -9,9 +9,26 @@ const getApiKey = () => {
     return import.meta.env.VITE_OPENAI_API_KEY;
   }
   
-  console.warn('OpenAI API key not found in environment variables');
-  // Fallback to localStorage if needed
-  return localStorage.getItem('openai_api_key');
+  // Check localStorage
+  const localStorageKey = localStorage.getItem('openai_api_key');
+  if (localStorageKey) {
+    return localStorageKey;
+  }
+  
+  // If no key is found, prompt the user to enter one
+  const userKey = prompt(
+    "No OpenAI API key found. Please enter your API key to continue:",
+    ""
+  );
+  
+  // If user provided a key, save it to localStorage for future use
+  if (userKey) {
+    localStorage.setItem('openai_api_key', userKey);
+    return userKey;
+  }
+  
+  console.warn('OpenAI API key not found and user did not provide one');
+  return null;
 };
 
 /**
@@ -42,12 +59,19 @@ export async function generateAITasks(activityDescription) {
   }`;
 
   try {
+    // Get API key
+    const apiKey = getApiKey();
+    
+    if (!apiKey) {
+      throw new Error("No API key available. Please provide an OpenAI API key to use this feature.");
+    }
+    
     // Call ChatGPT API
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${getApiKey()}`
+        "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
