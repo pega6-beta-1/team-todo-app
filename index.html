@@ -7,30 +7,46 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="container">
-        <div class="task-list-controls">
-            <select id="taskListSelector" class="task-list-selector">
-                <option value="">All Tasks</option>
-                <option value="new" class="new-list-option">New List...</option>
-            </select>
-        </div>
-        <h1>To-Do List</h1>
-        <div class="nav-buttons">
-            <button onclick="window.location.href='archived.html'" class="section-toggle">
-                Archived Tasks (<span id="archivedCount">0</span>)
-            </button>
-            <button onclick="window.location.href='completed.html'" class="section-toggle">
-                Completed Tasks (<span id="completedCount">0</span>)
-            </button>
-        </div>
-        <div class="input-section">
-            <div class="input-group">
-                <input type="text" id="taskInput" placeholder="Enter task title">
-                <input type="text" id="taskDescription" placeholder="Enter task description (optional)">
+    <div class="main-container">
+        <button id="aiGeneratorButton" class="ai-generator-btn">AI Generator</button>
+        <div class="todo-list">
+            <div class="container">
+                <div class="task-list-controls">
+                    <select id="taskListSelector" class="task-list-selector">
+                        <option value="">All Tasks</option>
+                        <option value="new" class="new-list-option">New List...</option>
+                    </select>
+                    <span id="deleteCategoryIcon" class="delete-category-icon" title="Delete Current Category">🗑️</span>
+                </div>
+                <h1>To-Do List</h1>
+                <div class="nav-buttons">
+                    <button onclick="window.location.href='archived.html'" class="section-toggle">
+                        Archived Tasks (<span id="archivedCount">0</span>)
+                    </button>
+                    <button onclick="window.location.href='completed.html'" class="section-toggle">
+                        Completed Tasks (<span id="completedCount">0</span>)
+                    </button>
+                </div>
+                <div class="input-section">
+                    <div class="input-group">
+                        <input type="text" id="taskInput" placeholder="Enter task title">
+                        <input type="text" id="taskDescription" placeholder="Enter task description (optional)">
+                    </div>
+                    <button onclick="addTask()">Add Task</button>
+                </div>
+                <ul id="taskList"></ul>
             </div>
-        <button onclick="addTask()">Add Task</button>
+            <dialog id="newTaskListDialog" class="task-list-dialog">
+                <form method="dialog">
+                    <h3>Create New Task List</h3>
+                    <input type="text" id="taskListName" placeholder="Enter task list name">
+                    <div class="dialog-buttons">
+                        <button type="button" onclick="this.closest('dialog').close()">Cancel</button>
+                        <button type="submit" onclick="createNewTaskList(event)">Create</button>
+                    </div>
+                </form>
+            </dialog>
         </div>
-        <ul id="taskList"></ul>
     </div>
     <dialog id="newTaskListDialog" class="task-list-dialog">
         <form method="dialog">
@@ -42,6 +58,17 @@
             </div>
         </form>
     </dialog>
-    <script src="app.js"></script>
+    <dialog id="aiGeneratorDialog" class="ai-generator-dialog">
+        <form method="dialog">
+            <h3>AI Task Generator</h3>
+            <p>Describe the activity you want to generate tasks for:</p>
+            <textarea id="aiActivityDescription" placeholder="Enter activity description" rows="4"></textarea>
+            <div class="dialog-buttons">
+                <button type="button" onclick="this.closest('dialog').close()">Cancel</button>
+                <button type="button" onclick="generateTasks()">Submit</button>
+            </div>
+        </form>
+    </dialog>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
