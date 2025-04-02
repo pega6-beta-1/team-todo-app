@@ -733,3 +733,112 @@ li:last-child {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* Dialog Styles */
+dialog.dialog {
+    border: none;
+    border-radius: 10px;
+    padding: 24px;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+}
+
+dialog.dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+}
+
+dialog.dialog h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: #333;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+dialog.dialog input,
+dialog.dialog textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-family: inherit;
+    margin-bottom: 16px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+dialog.dialog input:focus,
+dialog.dialog textarea:focus {
+    outline: none;
+    border-color: #ff8c00;
+    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.1);
+}
+
+dialog.dialog .dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+dialog.dialog button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+dialog.dialog button[type="button"] {
+    background-color: #f1f1f1;
+    color: #333;
+}
+
+dialog.dialog button[type="button"]:hover {
+    background-color: #e0e0e0;
+}
+
+dialog.dialog button[type="submit"] {
+    background-color: #ff8c00;
+    color: white;
+}
+
+dialog.dialog button[type="submit"]:hover {
+    background-color: #e67e00;
+}
+
+/* AI Dialog Specific Styles */
+.ai-dialog p {
+    margin-bottom: 12px;
+    color: #555;
+}
+
+.generating-indicator {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.generating-indicator p {
+    margin-bottom: 16px;
+    font-weight: 500;
+    color: #333;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 140, 0, 0.2);
+    border-radius: 50%;
+    border-left-color: #ff8c00;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }

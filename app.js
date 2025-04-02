@@ -80,9 +80,10 @@ document.addEventListener("DOMContentLoaded", () => {
 			renderTasks();
 		});
 
-	document
-		.getElementById("deleteCategoryBtn")
-		.addEventListener("click", deleteCurrentCategory);
+	const deleteCategoryBtn = document.getElementById("deleteCategoryBtn");
+	if (deleteCategoryBtn) {
+		deleteCategoryBtn.addEventListener("click", deleteCurrentCategory);
+	}
 		
 	// AI Generator Button Event Listener
 	const aiGeneratorBtn = document.getElementById("aiGeneratorBtn");
