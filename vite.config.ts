@@ -24,7 +24,8 @@ export default defineConfig(({ mode }) => {
     },
     // Define environment variables to be exposed to the client
     define: {
-      'process.env.OPENAI_API_KEY': JSON.stringify(env.OPENAI_API_KEY)
+      // Using Vite's preferred way for environment variables
+      'process.env.OPENAI_API_KEY': JSON.stringify(env.VITE_OPENAI_API_KEY || env.OPENAI_API_KEY || '')
     }
   }
 })
