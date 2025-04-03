@@ -32,7 +32,7 @@
                         <input type="text" id="taskInput" placeholder="Enter task title">
                         <input type="text" id="taskDescription" placeholder="Enter task description (optional)">
                     </div>
-                    <button onclick="addTask()">Add Task</button>
+                    <button id="addTaskBtn">Add Task</button>
                 </div>
                 <ul id="taskList"></ul>
             </div>
@@ -41,7 +41,7 @@
 
     <dialog id="newTaskListDialog" class="dialog">
         <h3>Create New Category</h3>
-        <form onsubmit="createNewTaskList(event)">
+        <form id="newTaskListForm">
             <input type="text" id="taskListName" placeholder="Category name" required>
             <div class="dialog-buttons">
                 <button type="button" onclick="this.closest('dialog').close()">Cancel</button>

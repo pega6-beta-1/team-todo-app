@@ -8,6 +8,18 @@ let showingCompleted = false;
 let taskLists = [];
 let currentTaskListId = null;
 
+// Expose necessary functions to the global scope for inline onclick handlers
+window.addTask = addTask;
+window.toggleTask = toggleTask;
+window.archiveTask = archiveTask;
+window.deleteTask = deleteTask;
+window.restoreTask = restoreTask;
+window.editTask = editTask;
+window.saveEdit = saveEdit;
+window.cancelEdit = cancelEdit;
+window.createNewTaskList = createNewTaskList;
+window.deleteCurrentCategory = deleteCurrentCategory;
+
 document.addEventListener("DOMContentLoaded", () => {
 	const savedArchivedTasks = localStorage.getItem("archivedTasks");
 	const savedCompletedTasks = localStorage.getItem("completedTasks");
@@ -99,6 +111,18 @@ document.addEventListener("DOMContentLoaded", () => {
 	const aiGeneratorForm = document.getElementById("aiGeneratorForm");
 	if (aiGeneratorForm) {
 		aiGeneratorForm.addEventListener("submit", handleAIGeneratorSubmit);
+	}
+
+	// Add Task Button Event Listener
+	const addTaskBtn = document.getElementById("addTaskBtn");
+	if (addTaskBtn) {
+		addTaskBtn.addEventListener("click", addTask);
+	}
+
+	// New Task List Form Submit Handler
+	const newTaskListForm = document.getElementById("newTaskListForm");
+	if (newTaskListForm) {
+		newTaskListForm.addEventListener("submit", createNewTaskList);
 	}
 });
 
