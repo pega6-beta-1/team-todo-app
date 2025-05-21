@@ -1,3 +1,6 @@
+## The majority of the code was generated using AI with prompts given
+## The sizing of small boxes has been changed by me.
+
 # To-Do List App
 
 A simple and intuitive To-Do List application built with HTML, CSS, and JavaScript.
